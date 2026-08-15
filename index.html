@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<title>5/3/1</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon.svg">
+<style>
+:root{
+  --bg:#0a0a0a; --bg-elevated:#161614; --bg-card:#1c1c19;
+  --accent:#ff5a1f; --accent-dim:#5c2510;
+  --deload:#2fb8c6; --deload-dim:#123a3e;
+  --text:#f5f5f0; --text-dim:#8a8a85; --border:#2c2c28;
+  --done:#3ddc84; --done-dim:#173325; --danger:#ff3b30;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;overflow-x:hidden;}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  min-height:100vh; min-height:100dvh;
+  padding-bottom:76px;
+}
+h1,h2,h3{margin:0; letter-spacing:-0.01em;}
+button{font-family:inherit;}
+.hidden{display:none !important;}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 8px;}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:var(--bg);z-index:5;
+}
+.topbar .brand{font-weight:800;font-size:1.1rem;letter-spacing:-0.02em;}
+.topbar .brand .accent{color:var(--accent);}
+.pill{
+  font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:99px;
+  text-transform:uppercase;letter-spacing:.04em;
+}
+.pill-deload{background:var(--deload-dim);color:var(--deload);}
+.pill-optional{background:var(--bg-card);color:var(--text-dim);border:1px solid var(--border);}
+.card{
+  background:var(--bg-card); border:1px solid var(--border); border-radius:14px;
+  padding:18px; margin-bottom:14px;
+}
+.btn{
+  display:block; width:100%; text-align:center; border:none; border-radius:12px;
+  padding:18px 16px; font-size:1.05rem; font-weight:700; color:var(--text);
+  background:var(--bg-elevated); border:1px solid var(--border); cursor:pointer;
+  min-height:56px;
+}
+.btn:active{transform:scale(0.98);}
+.btn-primary{background:var(--accent); color:#140700; border-color:var(--accent);}
+.btn-ghost{background:transparent;}
+.btn-danger{color:var(--danger); border-color:var(--danger);}
+.btn-sm{padding:10px 14px; font-size:.85rem; min-height:40px; width:auto;}
+.row{display:flex; gap:10px;}
+.row > *{flex:1;}
+.muted{color:var(--text-dim);}
+.section-title{font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim); font-weight:700; margin:22px 0 10px;}
+
+/* Inicio */
+.inicio-status{ text-align:center; padding:20px 4px 6px; }
+.inicio-week{ font-size:1.05rem; color:var(--text-dim); font-weight:600; }
+.inicio-day{ font-size:2rem; font-weight:800; margin:6px 0 2px; letter-spacing:-0.02em; }
+.deload-banner{
+  background:var(--deload-dim); border:1px solid var(--deload); color:var(--deload);
+  border-radius:12px; padding:14px; text-align:center; font-weight:700; margin-bottom:16px;
+}
+.block-complete{
+  background:var(--accent-dim); border:1px solid var(--accent); border-radius:12px;
+  padding:16px; text-align:center; margin-bottom:16px;
+}
+
+/* Sesion sets */
+.set-card{
+  background:var(--bg-card); border:1px solid var(--border); border-radius:16px;
+  padding:16px; margin-bottom:12px; position:relative;
+}
+.set-card.done{ opacity:.55; border-color:var(--done); }
+.set-card .set-label{ font-size:.78rem; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+.set-weight{
+  font-size:clamp(3rem,15vw,4.4rem); font-weight:800; line-height:1; letter-spacing:-0.03em;
+  margin:6px 0 2px;
+}
+.set-weight .unit{ font-size:1.3rem; font-weight:700; color:var(--text-dim); margin-left:6px; }
+.set-reps{ font-size:1.1rem; color:var(--text-dim); font-weight:600; margin-bottom:8px; }
+.set-plates{ font-size:1rem; margin-bottom:12px; }
+.set-plates .lbl{ color:var(--text-dim); font-size:.8rem; display:block; margin-bottom:2px;}
+.set-plates .val{ font-weight:700; }
+.set-plates .val.error{ color:var(--danger); }
+.check-btn{
+  width:100%; padding:16px; border-radius:12px; border:2px solid var(--border);
+  background:var(--bg-elevated); color:var(--text); font-weight:800; font-size:1rem;
+  cursor:pointer; min-height:56px;
+}
+.check-btn.checked{ background:var(--done-dim); border-color:var(--done); color:var(--done); }
+.amrap-inputs{ display:flex; gap:10px; margin-top:10px; }
+.amrap-inputs label{ flex:1; display:flex; flex-direction:column; font-size:.75rem; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:.04em; gap:6px;}
+.amrap-inputs input{
+  background:var(--bg-elevated); border:1px solid var(--border); color:var(--text);
+  border-radius:10px; padding:12px; font-size:1.1rem; font-weight:700; width:100%;
+}
+.timer-clock{
+  background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-dim);
+  border-radius:10px; padding:8px 12px; font-size:.85rem; font-weight:700; cursor:pointer;
+}
+
+/* Rest timer bar */
+.rest-bar{
+  position:fixed; left:0; right:0; bottom:76px; z-index:20;
+  background:var(--accent); color:#140700; padding:14px 18px;
+  display:flex; align-items:center; justify-content:space-between;
+  font-weight:800; font-size:1.3rem;
+}
+.rest-bar .rest-skip{ background:rgba(0,0,0,.2); border:none; color:#140700; font-weight:800; padding:8px 14px; border-radius:8px; font-size:.9rem; cursor:pointer; }
+
+/* Assistance */
+details.assist{ border:1px solid var(--border); border-radius:12px; padding:2px 14px; margin-top:6px; }
+details.assist summary{ padding:12px 0; font-weight:700; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center;}
+details.assist summary::-webkit-details-marker{display:none;}
+details.assist summary::after{ content:"+"; font-size:1.4rem; color:var(--text-dim); }
+details.assist[open] summary::after{ content:"–"; }
+.assist-item{ padding:12px 0; border-top:1px solid var(--border); }
+.assist-item .a-head{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+.assist-item .a-name{ font-weight:700; }
+.assist-item .a-sets{ color:var(--accent); font-weight:700; white-space:nowrap; }
+.assist-item .a-notes{ color:var(--text-dim); font-size:.88rem; margin-top:4px; }
+.assist-item .a-timer{ margin-top:8px; }
+
+textarea.note{
+  width:100%; background:var(--bg-card); border:1px solid var(--border); color:var(--text);
+  border-radius:12px; padding:12px; font-size:1rem; min-height:70px; font-family:inherit; resize:vertical;
+}
+
+/* Historial */
+.tabbar{ display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:16px; }
+.tab{ flex:0 0 auto; padding:10px 16px; border-radius:99px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-dim); font-weight:700; cursor:pointer; }
+.tab.active{ background:var(--accent); color:#140700; border-color:var(--accent); }
+.hist-row{ border-bottom:1px solid var(--border); padding:14px 0; }
+.hist-row:last-child{ border-bottom:none; }
+.hist-top{ display:flex; justify-content:space-between; font-weight:700; }
+.hist-week{ color:var(--text-dim); font-weight:600; font-size:.85rem; }
+.hist-sets{ margin-top:6px; font-size:.95rem; }
+.hist-amrap{ color:var(--accent); font-weight:700; }
+.hist-note{ margin-top:6px; font-size:.88rem; color:var(--text-dim); font-style:italic; }
+.empty{ text-align:center; color:var(--text-dim); padding:40px 10px; }
+
+/* Cierre de ciclo */
+.cierre-lift{ margin-bottom:18px; }
+.cierre-lift h3{ font-size:1.1rem; margin-bottom:8px; }
+.cierre-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.cierre-box{ background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px; padding:12px; }
+.cierre-box .k{ font-size:.72rem; text-transform:uppercase; color:var(--text-dim); font-weight:700; letter-spacing:.04em; }
+.cierre-box .v{ font-size:1.5rem; font-weight:800; margin-top:4px; }
+.cierre-lectura{ margin:10px 0; font-weight:700; color:var(--accent); }
+
+/* Bottom nav */
+.bottomnav{
+  position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--bg-elevated);
+  border-top:1px solid var(--border); z-index:15; padding-bottom:env(safe-area-inset-bottom);
+}
+.bottomnav button{
+  flex:1; background:none; border:none; color:var(--text-dim); font-weight:700; font-size:.8rem;
+  padding:14px 4px; cursor:pointer;
+}
+.bottomnav button.active{ color:var(--accent); }
+
+.fatal{
+  position:fixed; inset:0; background:#2a0500; color:#fff; padding:24px; z-index:999;
+  font-family:monospace; font-size:.95rem; overflow:auto; white-space:pre-wrap;
+}
+
+.io-row{ display:flex; gap:10px; margin-top:18px; }
+.io-row button{ font-size:.85rem; }
+</style>
+</head>
+<body>
+
+<div id="fatal" class="fatal hidden"></div>
+
+<div class="topbar">
+  <div class="brand">5<span class="accent">/</span>3<span class="accent">/</span>1</div>
+  <div id="topbar-tag" class="pill pill-optional">Bloque S5–S8</div>
+</div>
+
+<!-- INICIO -->
+<div id="screen-inicio" class="screen wrap"></div>
+
+<!-- SESION -->
+<div id="screen-sesion" class="screen wrap hidden"></div>
+
+<!-- HISTORIAL -->
+<div id="screen-historial" class="screen wrap hidden"></div>
+
+<!-- CIERRE -->
+<div id="screen-cierre" class="screen wrap hidden"></div>
+
+<div id="rest-bar-slot"></div>
+
+<nav class="bottomnav">
+  <button id="nav-inicio" data-screen="inicio">Inicio</button>
+  <button id="nav-historial" data-screen="historial">Historial</button>
+</nav>
+
+<script>
+"use strict";
+
+/* =========================================================================
+   CONFIGURACIÓN — único punto de verdad. Cambiar los TM y todo se recalcula.
+   ========================================================================= */
+const CONFIG = {
+
+  // Múltiplo de redondeo para todos los pesos calculados (kg).
+  roundingIncrement: 2.5,
+
+  // Barra y discos disponibles POR LADO. Cantidad ilimitada por disco
+  // (gimnasio comercial estándar) — el cálculo de carga usa greedy.
+  barWeight: 20,
+  availablePlates: [25, 20, 15, 10, 5, 2.5, 1.25],
+
+  // Training Max vigente de cada levantamiento (el de este bloque, no el
+  // 90% del 1RM histórico). "category" define qué incremento de cierre de
+  // ciclo le corresponde (lower vs upper body).
+  lifts: {
+    squat:    { label: "Back Squat",    tm: 102.5, category: "lower", optional: false },
+    bench:    { label: "Press Banca",   tm: 92.5,  category: "upper", optional: false },
+    deadlift: { label: "Peso Muerto",   tm: 137.5, category: "lower", optional: false },
+    ohp:      { label: "Press Militar", tm: 47.5,  category: "upper", optional: true  }
+  },
+
+  // Orden fijo de los días de entrenamiento.
+  dayOrder: ["squat", "bench", "deadlift", "ohp"],
+
+  // Semanas del bloque. Numeración real 5–8 (NO se renumera a 1–4).
+  // pcts / reps van en paralelo a las 3 series de trabajo.
+  // amrap:false ⇒ ninguna serie de esa semana es AMRAP (deload).
+  weeks: [
+    { n: 5, label: "5/5/5+",  pcts: [65, 75, 85], reps: [5, 5, 5], amrap: true,  deload: false },
+    { n: 6, label: "3/3/3+",  pcts: [70, 80, 90], reps: [3, 3, 3], amrap: true,  deload: false },
+    { n: 7, label: "5/3/1+",  pcts: [75, 85, 95], reps: [5, 3, 1], amrap: true,  deload: false },
+    { n: 8, label: "Deload",  pcts: [40, 50, 60], reps: [5, 5, 5], amrap: false, deload: true  }
+  ],
+
+  // Timer de descanso, en segundos.
+  restTimer: { main: 180, assistance: 90 },
+
+  // Ejercicios de asistencia por día (clave = dayOrder). Colapsados por
+  // defecto en la pantalla de Sesión.
+  assistance: {
+    squat: [
+      { name: "Box Jump (cajón)", sets: 3, reps: "3", notes: "ANTES del Squat principal. Explosivo, aterrizaje suave. Activación neural." },
+      { name: "Front Squat o Squat Pausa", sets: 3, reps: "8", notes: "60-65% del TM de squat. Profundidad total, pausa 1s abajo." },
+      { name: "Hip Thrust con barra", sets: 3, reps: "10", notes: "Glúteo. Pausa 1s arriba, contracción máxima." },
+      { name: "Walking Lunges con mancuernas", sets: 3, reps: "12 pasos", notes: "Control. Rodilla alineada con el pie." },
+      { name: "Pallof Press", sets: 3, reps: "12 c/lado", notes: "Anti-rotación. Cierre de core." }
+    ],
+    bench: [
+      { name: "Remo Pendlay", sets: 4, reps: "6", notes: "Explosivo hacia el ombligo. Tronco paralelo al piso. Empezá con 50-60kg." },
+      { name: "Press Inclinado con mancuernas", sets: 3, reps: "10", notes: "Hombro alto, pecho. Agarre neutro si sentís hombro." },
+      { name: "Remo con mancuerna a un brazo", sets: 3, reps: "10 c/brazo", notes: "Apoyo en banco, estira el dorsal abajo." },
+      { name: "Face Pulls", sets: 3, reps: "15", notes: "Banda media. Salud de hombro, mantenelo." },
+      { name: "Tríceps (paralelas asistidas o press francés)", sets: 3, reps: "12", notes: "Lo que tengas disponible." }
+    ],
+    deadlift: [
+      { name: "Peso Muerto Rumano", sets: 3, reps: "8", notes: "60% del TM de peso muerto. Lento abajo, isquios estirados." },
+      { name: "Bulgarian Split Squat", sets: 3, reps: "8 c/pierna", notes: "Pie trasero elevado. Control motor, sin colapso de rodilla." },
+      { name: "Pull-ups o jalón", sets: 3, reps: "8", notes: "Si dominadas con peso corporal: 3 x al fallo -2. Si no: jalón al pecho." },
+      { name: "Farmer Carry", sets: 4, reps: "30m", notes: "Pesado pero estable. Postura, agarre, core." },
+      { name: "Hanging Leg Raises o Dead Bug", sets: 3, reps: "10", notes: "Core anti-extensión." }
+    ],
+    ohp: [
+      { name: "Dominadas (con o sin peso)", sets: 5, reps: "al fallo -1", notes: "Si peso corporal es fácil, agregás peso. Volumen total de tirones verticales." },
+      { name: "Press con mancuernas sentado", sets: 3, reps: "10", notes: "Apoyo de respaldo. Suma volumen de hombro." },
+      { name: "Elevaciones laterales", sets: 3, reps: "15", notes: "Hombro lateral, peso ligero, control." },
+      { name: "Curl bíceps barra", sets: 3, reps: "10", notes: "Para los brazos. Y porque se siente bien." },
+      { name: "Plancha frontal", sets: 3, reps: "45-60s", notes: "Core estático, cierre." }
+    ]
+  },
+
+  // Cierre de ciclo: reglas según reps del AMRAP de semana 7 (mínimo
+  // prescrito: 1). deltaLower/deltaUpper se suman al TM según category.
+  // La regla "recalcular" usa la fórmula literal del e1RM, ver lógica.
+  cierreDeCiclo: {
+    reglas: [
+      { repsMin: 1, repsMax: 1,        lectura: "TM al límite",  accion: "mantener_o_bajar", delta: -2.5 },
+      { repsMin: 2, repsMax: 3,        lectura: "TM correcto",   accion: "sumar", deltaLower: 5,   deltaUpper: 2.5 },
+      { repsMin: 4, repsMax: 6,        lectura: "TM bajo",       accion: "sumar", deltaLower: 7.5, deltaUpper: 5   },
+      { repsMin: 7, repsMax: Infinity, lectura: "TM muy bajo",   accion: "recalcular" }
+    ]
+  }
+};
+
+/* =========================================================================
+   REDONDEO — empate al par (banker's rounding), múltiplos de 2.5 kg.
+   ========================================================================= */
+function redondear(peso) {
+  const inc = CONFIG.roundingIncrement;
+  const q = Math.round((peso / inc) * 1e6) / 1e6; // matar ruido de float
+  const f = Math.floor(q);
+  const d = q - f;
+  let n;
+  if (d > 0.5) n = f + 1;
+  else if (d < 0.5) n = f;
+  else n = (f % 2 === 0) ? f : f + 1; // empate → al par
+  return n * inc;
+}
+
+function calcularPesoSerie(tm, pct) {
+  return redondear(tm * pct / 100);
+}
+
+/* =========================================================================
+   DISCOS — cuántos poner por lado (greedy, cantidad ilimitada por disco).
+   ========================================================================= */
+function calcularDiscos(pesoTotal) {
+  const porLado = (pesoTotal - CONFIG.barWeight) / 2;
+  if (porLado < -1e-6) return { ok: false, reason: "menor_a_barra" };
+  if (Math.abs(porLado) < 1e-6) return { ok: true, plates: [] };
+
+  let restante = Math.round(porLado * 1e6) / 1e6;
+  const plates = [];
+  const sorted = [...CONFIG.availablePlates].sort((a, b) => b - a);
+  for (const p of sorted) {
+    let count = 0;
+    while (restante - p >= -1e-6) {
+      restante = Math.round((restante - p) * 1e6) / 1e6;
+      count++;
+    }
+    if (count > 0) plates.push({ plate: p, count });
+  }
+  if (Math.abs(restante) > 1e-6) return { ok: false, reason: "no_armable" };
+  return { ok: true, plates };
+}
+
+function formatDiscos(pesoTotal) {
+  const r = calcularDiscos(pesoTotal);
+  if (!r.ok) {
+    return { text: r.reason === "menor_a_barra" ? "Peso menor a la barra" : "No armable con los discos configurados", error: true };
+  }
+  if (r.plates.length === 0) return { text: "Solo barra", error: false };
+  const parts = [];
+  r.plates.forEach(p => { for (let i = 0; i < p.count; i++) parts.push(p.plate); });
+  return { text: parts.join(" + ") + " kg", error: false };
+}
+
+/* =========================================================================
+   AUTOTEST — corre al cargar. Si algo falla, grita (banner fatal visible).
+   ========================================================================= */
+function runSelfTests() {
+  const fails = [];
+  const casos = [
+    [102.5, 50, 50], [92.5, 50, 45], [137.5, 70, 95],
+    [137.5, 90, 125], [137.5, 50, 70], [47.5, 50, 25]
+  ];
+  casos.forEach(([tm, pct, esperado]) => {
+    const got = calcularPesoSerie(tm, pct);
+    if (got !== esperado) fails.push(`redondeo: ${tm} * ${pct}% → ${got}, esperado ${esperado}`);
+  });
+
+  const tablaPDF = {
+    squat:    { tm: 102.5, filas: [[67.5,77.5,87.5],[72.5,82.5,92.5],[77.5,87.5,97.5],[40,50,62.5]] },
+    bench:    { tm: 92.5,  filas: [[60,70,77.5],[65,75,82.5],[70,77.5,87.5],[37.5,45,55]] },
+    deadlift: { tm: 137.5, filas: [[90,102.5,117.5],[95,110,125],[102.5,117.5,130],[55,70,82.5]] },
+    ohp:      { tm: 47.5,  filas: [[30,35,40],[32.5,37.5,42.5],[35,40,45],[20,25,27.5]] }
+  };
+  Object.keys(tablaPDF).forEach(key => {
+    const { tm, filas } = tablaPDF[key];
+    CONFIG.weeks.forEach((week, wi) => {
+      week.pcts.forEach((pct, si) => {
+        const got = calcularPesoSerie(tm, pct);
+        const esperado = filas[wi][si];
+        if (got !== esperado) fails.push(`${key} semana ${week.n} serie ${si + 1}: ${got} ≠ ${esperado} (tm ${tm}, ${pct}%)`);
+      });
+    });
+  });
+
+  if (fails.length) {
+    const el = document.getElementById("fatal");
+    el.textContent = "AUTOTEST FALLÓ — la app no es confiable hasta corregir esto:\n\n" + fails.join("\n");
+    el.classList.remove("hidden");
+    console.error("AUTOTEST FALLÓ", fails);
+    throw new Error("Autotest de redondeo falló: " + fails.length + " casos.");
+  } else {
+    console.log("Autotest OK: 6 casos de empate + 48 celdas del PDF verificadas.");
+  }
+}
+
+/* =========================================================================
+   ESTADO / PERSISTENCIA
+   ========================================================================= */
+const STORAGE_KEY = "raf531_v1";
+
+function defaultState() {
+  return {
+    weekIndex: 0,
+    dayIndex: 0,
+    blockComplete: false,
+    history: [],
+    draft: null
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    return Object.assign(defaultState(), parsed);
+  } catch (e) {
+    console.error("No se pudo leer localStorage, arrancando en blanco.", e);
+    return defaultState();
+  }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.error("No se pudo guardar en localStorage.", e);
+    alert("No se pudo guardar. El almacenamiento del navegador puede estar lleno o bloqueado.");
+  }
+}
+
+let state = loadState();
+
+/* =========================================================================
+   SESIÓN — construcción de series a partir del CONFIG vigente
+   ========================================================================= */
+function buildSets(liftKey, weekIndex) {
+  const lift = CONFIG.lifts[liftKey];
+  const week = CONFIG.weeks[weekIndex];
+  return week.pcts.map((pct, i) => ({
+    setNumber: i + 1,
+    pct,
+    weight: calcularPesoSerie(lift.tm, pct),
+    reps: week.reps[i],
+    isAmrap: week.amrap && i === week.pcts.length - 1
+  }));
+}
+
+function ensureDraft(liftKey, weekIndex) {
+  if (state.draft && state.draft.liftKey === liftKey && state.draft.weekIndex === weekIndex) {
+    return state.draft;
+  }
+  const sets = buildSets(liftKey, weekIndex).map(s => ({
+    setNumber: s.setNumber, done: false, actualReps: null, rpe: null
+  }));
+  state.draft = { liftKey, weekIndex, sets, note: "" };
+  saveState();
+  return state.draft;
+}
+
+/* =========================================================================
+   TIMER DE DESCANSO
+   ========================================================================= */
+let restEndAt = null;
+let restInterval = null;
+let audioCtx = null;
+
+function beep() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.3, audioCtx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.55);
+  } catch (e) { /* audio no disponible, seguimos */ }
+  if (navigator.vibrate) navigator.vibrate([250, 100, 250, 100, 250]);
+}
+
+function startRestTimer(seconds) {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch (e) {}
+  restEndAt = Date.now() + seconds * 1000;
+  renderRestBar();
+  if (restInterval) clearInterval(restInterval);
+  restInterval = setInterval(renderRestBar, 250);
+}
+
+function stopRestTimer() {
+  restEndAt = null;
+  if (restInterval) clearInterval(restInterval);
+  restInterval = null;
+  document.getElementById("rest-bar-slot").innerHTML = "";
+}
+
+function renderRestBar() {
+  const slot = document.getElementById("rest-bar-slot");
+  if (!restEndAt) { slot.innerHTML = ""; return; }
+  const remainingMs = restEndAt - Date.now();
+  if (remainingMs <= 0) {
+    slot.innerHTML = "";
+    stopRestTimer();
+    beep();
+    return;
+  }
+  const totalSec = Math.ceil(remainingMs / 1000);
+  const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
+  const ss = String(totalSec % 60).padStart(2, "0");
+  slot.innerHTML = `
+    <div class="rest-bar">
+      <span>Descanso — ${mm}:${ss}</span>
+      <button class="rest-skip" id="rest-skip-btn">Saltar</button>
+    </div>`;
+  document.getElementById("rest-skip-btn").onclick = stopRestTimer;
+}
+
+/* =========================================================================
+   RENDER — router simple entre pantallas
+   ========================================================================= */
+function showScreen(name) {
+  ["inicio", "sesion", "historial", "cierre"].forEach(s => {
+    document.getElementById("screen-" + s).classList.toggle("hidden", s !== name);
+  });
+  document.getElementById("nav-inicio").classList.toggle("active", name === "inicio");
+  document.getElementById("nav-historial").classList.toggle("active", name === "historial");
+  window.scrollTo(0, 0);
+}
+
+function currentLiftKey() { return CONFIG.dayOrder[state.dayIndex]; }
+function currentWeek() { return CONFIG.weeks[state.weekIndex]; }
+
+function renderInicio() {
+  const el = document.getElementById("screen-inicio");
+  const week = currentWeek();
+  const liftKey = currentLiftKey();
+  const lift = CONFIG.lifts[liftKey];
+
+  if (state.blockComplete) {
+    el.innerHTML = `
+      <div class="block-complete">
+        <h2>Bloque completo</h2>
+        <p class="muted">Terminaste las 4 semanas. Revisá el cierre de ciclo con los AMRAP de semana 7 para definir el próximo TM.</p>
+      </div>
+      <button class="btn btn-primary" id="btn-ver-cierre">Ver cierre de ciclo</button>
+      <button class="btn btn-ghost" id="btn-reiniciar" style="margin-top:12px;">Reiniciar bloque (semana 5, día 1)</button>
+      ${ioButtonsHtml()}
+    `;
+    document.getElementById("btn-ver-cierre").onclick = () => { renderCierre(); showScreen("cierre"); };
+    document.getElementById("btn-reiniciar").onclick = () => {
+      if (confirm("Esto vuelve el puntero a semana 5 / día 1. El historial NO se borra. ¿Continuar?")) {
+        state.weekIndex = 0; state.dayIndex = 0; state.blockComplete = false; state.draft = null;
+        saveState(); renderInicio();
+      }
+    };
+    wireIoButtons();
+    return;
+  }
+
+  el.innerHTML = `
+    ${week.deload ? `<div class="deload-banner">SEMANA DE DELOAD — bajá la intensidad</div>` : ""}
+    <div class="inicio-status">
+      <div class="inicio-week">Semana ${week.n} de 8 · ${week.label}</div>
+      <div class="inicio-day">${lift.label}${lift.optional ? ' <span class="pill pill-optional">Opcional</span>' : ""}</div>
+    </div>
+    <button class="btn btn-primary" id="btn-entrar">Entrar a la sesión</button>
+    ${lift.optional ? `<button class="btn btn-ghost" id="btn-saltear" style="margin-top:12px;">Saltear día 4 esta semana</button>` : ""}
+    ${hasWeek7DataAnyLift() ? `<button class="btn btn-ghost" id="btn-cierre" style="margin-top:12px;">Ver cierre de ciclo</button>` : ""}
+    ${ioButtonsHtml()}
+  `;
+  document.getElementById("btn-entrar").onclick = () => { ensureDraft(liftKey, state.weekIndex); renderSesion(); showScreen("sesion"); };
+  const saltear = document.getElementById("btn-saltear");
+  if (saltear) saltear.onclick = () => { advanceDay(); renderInicio(); };
+  const cierreBtn = document.getElementById("btn-cierre");
+  if (cierreBtn) cierreBtn.onclick = () => { renderCierre(); showScreen("cierre"); };
+  wireIoButtons();
+}
+
+function advanceDay() {
+  if (state.dayIndex < CONFIG.dayOrder.length - 1) {
+    state.dayIndex += 1;
+  } else {
+    state.dayIndex = 0;
+    if (state.weekIndex < CONFIG.weeks.length - 1) {
+      state.weekIndex += 1;
+    } else {
+      state.blockComplete = true;
+    }
+  }
+  state.draft = null;
+  saveState();
+}
+
+function renderSesion() {
+  const el = document.getElementById("screen-sesion");
+  const draft = state.draft;
+  const liftKey = draft.liftKey;
+  const weekIndex = draft.weekIndex;
+  const lift = CONFIG.lifts[liftKey];
+  const week = CONFIG.weeks[weekIndex];
+  const sets = buildSets(liftKey, weekIndex);
+
+  const setsHtml = sets.map((s, i) => {
+    const d = draft.sets[i];
+    const discos = formatDiscos(s.weight);
+    return `
+      <div class="set-card ${d.done ? "done" : ""}" data-set="${i}">
+        <div class="set-label">Serie ${s.setNumber}${s.isAmrap ? " · AMRAP" : ""}</div>
+        <div class="set-weight">${s.weight}<span class="unit">kg</span></div>
+        <div class="set-reps">${s.isAmrap ? `${s.reps}+ reps (mínimo)` : `${s.reps} reps`}</div>
+        <div class="set-plates">
+          <span class="lbl">Discos por lado</span>
+          <span class="val ${discos.error ? "error" : ""}">${discos.text}</span>
+        </div>
+        ${s.isAmrap ? `
+        <div class="amrap-inputs">
+          <label>Reps hechas
+            <input type="number" inputmode="numeric" min="0" data-field="actualReps" data-set="${i}" value="${d.actualReps ?? ""}">
+          </label>
+          <label>RPE
+            <input type="number" inputmode="decimal" step="0.5" min="1" max="10" data-field="rpe" data-set="${i}" value="${d.rpe ?? ""}">
+          </label>
+        </div>` : ""}
+        <button class="check-btn ${d.done ? "checked" : ""}" data-toggle="${i}" style="margin-top:12px;">
+          ${d.done ? "✓ Serie hecha" : "Marcar serie hecha"}
+        </button>
+      </div>
+    `;
+  }).join("");
+
+  const assistItems = CONFIG.assistance[liftKey] || [];
+  const assistHtml = assistItems.map((a, i) => `
+    <div class="assist-item">
+      <div class="a-head">
+        <span class="a-name">${a.name}</span>
+        <span class="a-sets">${a.sets} x ${a.reps}</span>
+      </div>
+      <div class="a-notes">${a.notes}</div>
+      <div class="a-timer">
+        <button class="timer-clock" data-assist-timer="${i}">⏱ Descanso ${CONFIG.restTimer.assistance}s</button>
+      </div>
+    </div>
+  `).join("");
+
+  el.innerHTML = `
+    <button class="btn btn-ghost btn-sm" id="btn-volver" style="width:auto;">← Volver</button>
+    <div style="margin-top:14px;">
+      <h2>${lift.label}</h2>
+      <div class="muted">Semana ${week.n} · ${week.label}${week.deload ? " · DELOAD" : ""}</div>
+    </div>
+    <div style="margin-top:18px;">${setsHtml}</div>
+
+    <details class="assist">
+      <summary>Asistencia del día (${assistItems.length})</summary>
+      ${assistHtml}
+    </details>
+
+    <div class="section-title">Nota de la sesión</div>
+    <textarea class="note" id="nota-sesion" placeholder="Molestias, energía, sueño...">${draft.note || ""}</textarea>
+
+    <button class="btn btn-primary" id="btn-finalizar" style="margin-top:18px;">Finalizar sesión</button>
+  `;
+
+  document.getElementById("btn-volver").onclick = () => { showScreen("inicio"); renderInicio(); };
+
+  el.querySelectorAll("[data-toggle]").forEach(btn => {
+    btn.onclick = () => {
+      const idx = Number(btn.dataset.toggle);
+      draft.sets[idx].done = !draft.sets[idx].done;
+      if (draft.sets[idx].done) startRestTimer(CONFIG.restTimer.main);
+      saveState();
+      renderSesion();
+    };
+  });
+
+  el.querySelectorAll("[data-field]").forEach(inp => {
+    inp.oninput = () => {
+      const idx = Number(inp.dataset.set);
+      const field = inp.dataset.field;
+      draft.sets[idx][field] = inp.value === "" ? null : Number(inp.value);
+      saveState();
+    };
+  });
+
+  el.querySelectorAll("[data-assist-timer]").forEach(btn => {
+    btn.onclick = () => startRestTimer(CONFIG.restTimer.assistance);
+  });
+
+  document.getElementById("nota-sesion").oninput = (e) => { draft.note = e.target.value; saveState(); };
+
+  document.getElementById("btn-finalizar").onclick = finalizarSesion;
+}
+
+function finalizarSesion() {
+  const draft = state.draft;
+  const liftKey = draft.liftKey;
+  const weekIndex = draft.weekIndex;
+  const week = CONFIG.weeks[weekIndex];
+  const sets = buildSets(liftKey, weekIndex);
+
+  const record = {
+    id: Date.now() + "_" + liftKey,
+    timestamp: new Date().toISOString(),
+    liftKey,
+    weekIndex,
+    weekN: week.n,
+    weekLabel: week.label,
+    deload: week.deload,
+    note: draft.note || "",
+    sets: sets.map((s, i) => ({
+      setNumber: s.setNumber,
+      weight: s.weight,
+      reps: s.reps,
+      isAmrap: s.isAmrap,
+      done: draft.sets[i].done,
+      actualReps: draft.sets[i].actualReps,
+      rpe: draft.sets[i].rpe
+    }))
+  };
+
+  state.history.unshift(record);
+  stopRestTimer();
+  advanceDay();
+  saveState();
+  showScreen("inicio");
+  renderInicio();
+}
+
+/* =========================================================================
+   HISTORIAL
+   ========================================================================= */
+let historialTab = "squat";
+
+function renderHistorial() {
+  const el = document.getElementById("screen-historial");
+  const tabsHtml = CONFIG.dayOrder.map(k => `
+    <button class="tab ${k === historialTab ? "active" : ""}" data-tab="${k}">${CONFIG.lifts[k].label}</button>
+  `).join("");
+
+  const sessions = state.history.filter(r => r.liftKey === historialTab);
+  const listHtml = sessions.length ? sessions.map(r => {
+    const fecha = new Date(r.timestamp).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    const setsText = r.sets.map(s => {
+      if (s.isAmrap) {
+        const reps = s.actualReps != null ? s.actualReps : "?";
+        const rpe = s.rpe != null ? ` RPE ${s.rpe}` : "";
+        return `${s.weight}kg x <span class="hist-amrap">${reps}${rpe}</span>`;
+      }
+      return `${s.weight}kg x ${s.reps}`;
+    }).join(" · ");
+    return `
+      <div class="hist-row">
+        <div class="hist-top">
+          <span>${fecha}</span>
+          <span class="hist-week">Semana ${r.weekN} · ${r.weekLabel}${r.deload ? " · DELOAD" : ""}</span>
+        </div>
+        <div class="hist-sets">${setsText}</div>
+        ${r.note ? `<div class="hist-note">"${r.note}"</div>` : ""}
+      </div>
+    `;
+  }).join("") : `<div class="empty">Todavía no hay sesiones registradas de ${CONFIG.lifts[historialTab].label}.</div>`;
+
+  el.innerHTML = `
+    <div class="section-title">Historial</div>
+    <div class="tabbar">${tabsHtml}</div>
+    <div class="card">${listHtml}</div>
+  `;
+
+  el.querySelectorAll("[data-tab]").forEach(btn => {
+    btn.onclick = () => { historialTab = btn.dataset.tab; renderHistorial(); };
+  });
+}
+
+/* =========================================================================
+   CIERRE DE CICLO
+   ========================================================================= */
+function hasWeek7DataAnyLift() {
+  return CONFIG.dayOrder.some(k => findWeek7Amrap(k) !== null);
+}
+
+function findWeek7Amrap(liftKey) {
+  const rec = state.history.find(r => r.liftKey === liftKey && r.weekN === 7);
+  if (!rec) return null;
+  const amrapSet = rec.sets.find(s => s.isAmrap);
+  if (!amrapSet || amrapSet.actualReps == null) return null;
+  return { record: rec, set: amrapSet };
+}
+
+function reglaPara(reps) {
+  return CONFIG.cierreDeCiclo.reglas.find(r => reps >= r.repsMin && reps <= r.repsMax);
+}
+
+function renderCierre() {
+  const el = document.getElementById("screen-cierre");
+  const bloques = CONFIG.dayOrder.map(liftKey => {
+    const lift = CONFIG.lifts[liftKey];
+    const data = findWeek7Amrap(liftKey);
+    if (!data) {
+      return `<div class="cierre-lift"><h3>${lift.label}</h3><p class="muted">Sin AMRAP de semana 7 registrado todavía.</p></div>`;
+    }
+    const { set } = data;
+    const weight = set.weight;
+    const reps = set.actualReps;
+    const regla = reglaPara(reps);
+
+    // Sugerencia por tabla de incrementos
+    let tablaTexto;
+    if (regla.accion === "mantener_o_bajar") {
+      tablaTexto = `${lift.tm} kg (repetir) o ${lift.tm + regla.delta} kg`;
+    } else if (regla.accion === "sumar") {
+      const delta = lift.category === "lower" ? regla.deltaLower : regla.deltaUpper;
+      tablaTexto = `${redondear(lift.tm + delta)} kg`;
+    } else {
+      tablaTexto = "ver e1RM →";
+    }
+
+    // e1RM literal: (peso × reps × 0.0333) + peso
+    const e1rm = (weight * reps * 0.0333) + weight;
+    const tmSugeridoE1rm = redondear(e1rm * 0.9);
+
+    return `
+      <div class="cierre-lift">
+        <h3>${lift.label}</h3>
+        <div class="muted">TM actual: ${lift.tm} kg · AMRAP: ${weight}kg x ${reps}${set.rpe != null ? ` (RPE ${set.rpe})` : ""}</div>
+        <div class="cierre-lectura">${regla.lectura}</div>
+        <div class="cierre-grid">
+          <div class="cierre-box">
+            <div class="k">Sugerencia por tabla</div>
+            <div class="v">${tablaTexto}</div>
+          </div>
+          <div class="cierre-box">
+            <div class="k">e1RM / TM (90%)</div>
+            <div class="v">${redondear(e1rm)} / ${tmSugeridoE1rm} kg</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  el.innerHTML = `
+    <button class="btn btn-ghost btn-sm" id="btn-volver-cierre" style="width:auto;">← Volver</button>
+    <div class="section-title" style="margin-top:14px;">Cierre de ciclo</div>
+    <p class="muted">Basado en el AMRAP de semana 7. Estos números son una propuesta — vos decidís y los pasás manualmente al objeto CONFIG del HTML para el próximo bloque.</p>
+    ${bloques}
+  `;
+  document.getElementById("btn-volver-cierre").onclick = () => { showScreen("inicio"); renderInicio(); };
+}
+
+/* =========================================================================
+   EXPORT / IMPORT
+   ========================================================================= */
+function ioButtonsHtml() {
+  return `
+    <div class="io-row">
+      <button class="btn btn-sm" id="btn-export">Exportar JSON</button>
+      <button class="btn btn-sm" id="btn-import">Importar JSON</button>
+    </div>
+    <input type="file" id="input-import" accept="application/json" class="hidden">
+  `;
+}
+
+function wireIoButtons() {
+  const exportBtn = document.getElementById("btn-export");
+  const importBtn = document.getElementById("btn-import");
+  const fileInput = document.getElementById("input-import");
+  if (exportBtn) exportBtn.onclick = exportHistorial;
+  if (importBtn) importBtn.onclick = () => fileInput.click();
+  if (fileInput) fileInput.onchange = importHistorial;
+}
+
+function exportHistorial() {
+  try {
+    const data = JSON.stringify(state, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const fecha = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `raf531_backup_${fecha}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    console.error(e);
+    alert("No se pudo exportar el historial.");
+  }
+}
+
+function importHistorial(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      if (!parsed || !Array.isArray(parsed.history)) throw new Error("Formato inválido");
+      if (!confirm(`Importar reemplazará el estado actual (${state.history.length} sesiones) por el del archivo (${parsed.history.length} sesiones). ¿Continuar?`)) return;
+      state = Object.assign(defaultState(), parsed);
+      saveState();
+      renderInicio();
+      renderHistorial();
+      alert("Importado correctamente.");
+    } catch (err) {
+      console.error(err);
+      alert("El archivo no es un backup válido de esta app.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* =========================================================================
+   NAV / INIT
+   ========================================================================= */
+document.getElementById("nav-inicio").onclick = () => { renderInicio(); showScreen("inicio"); };
+document.getElementById("nav-historial").onclick = () => { renderHistorial(); showScreen("historial"); };
+
+function init() {
+  runSelfTests();
+  renderInicio();
+  showScreen("inicio");
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(err => console.warn("SW no registrado:", err));
+    });
+  }
+}
+
+init();
+</script>
+</body>
+</html>
