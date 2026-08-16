@@ -1,4 +1,4 @@
-const CACHE_NAME = "raf531-cache-v2";
+const CACHE_NAME = "raf531-cache-v3";
 const ASSETS = [
   "./",
   "./index.html",

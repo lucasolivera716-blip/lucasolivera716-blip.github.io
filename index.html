@@ -11,7 +11,7 @@
 <style>
 :root{
   --bg:#0a0a0a; --bg-elevated:#161614; --bg-card:#1c1c19;
-  --accent:#ff5a1f; --accent-dim:#5c2510;
+  --accent:#ff5a1f;
   --deload:#2fb8c6; --deload-dim:#123a3e;
   --text:#f5f5f0; --text-dim:#8a8a85; --border:#2c2c28;
   --done:#3ddc84; --done-dim:#173325; --danger:#ff3b30;
@@ -69,11 +69,6 @@ button{font-family:inherit;}
   background:var(--deload-dim); border:1px solid var(--deload); color:var(--deload);
   border-radius:12px; padding:14px; text-align:center; font-weight:700; margin-bottom:16px;
 }
-.block-complete{
-  background:var(--accent-dim); border:1px solid var(--accent); border-radius:12px;
-  padding:16px; text-align:center; margin-bottom:16px;
-}
-
 /* Selector de semana + progreso */
 .week-nav{ display:flex; align-items:center; justify-content:center; gap:18px; padding:10px 0 4px; }
 .week-nav button{
@@ -92,17 +87,19 @@ button{font-family:inherit;}
 .progress-dots .dot.done{ background:var(--done); border-color:var(--done); }
 .progress-dots .dot.deload.done{ background:var(--deload); border-color:var(--deload); }
 
-/* Botones de elección de día / grupo muscular */
-.lift-btn{
-  display:flex; align-items:center; justify-content:space-between; width:100%;
-  background:var(--bg-card); border:1px solid var(--border); border-radius:14px;
-  padding:16px 18px; margin-bottom:10px; cursor:pointer; text-align:left;
+/* Tiles cuadrados de elección de día / grupo muscular */
+.lift-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:6px; }
+.lift-tile{
+  position:relative; aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:6px; background:var(--bg-card); border:1px solid var(--border); border-radius:16px;
+  color:var(--accent); cursor:pointer; padding:10px; text-align:center;
 }
-.lift-btn:active{ transform:scale(0.98); }
-.lift-btn .lift-name{ font-size:1.15rem; font-weight:800; display:block; }
-.lift-btn .lift-meta{ font-size:.82rem; color:var(--text-dim); font-weight:600; margin-top:2px; display:block; }
-.lift-btn .lift-check{ font-size:1.3rem; color:var(--done); font-weight:800; margin-left:12px; flex:0 0 auto; }
-.lift-btn.done{ border-color:var(--done); }
+.lift-tile:active{ transform:scale(0.97); }
+.lift-tile.done{ color:var(--done); border-color:var(--done); }
+.lift-tile-icon{ line-height:0; }
+.lift-tile-name{ color:var(--text); font-size:.95rem; font-weight:800; }
+.lift-tile-meta{ color:var(--text-dim); font-size:.75rem; font-weight:600; }
+.lift-tile-check{ position:absolute; top:8px; right:10px; font-size:1.1rem; font-weight:800; color:var(--done); }
 .io-caption{ font-size:.8rem; color:var(--text-dim); margin-top:8px; line-height:1.4; }
 
 /* Sesion sets */
@@ -147,6 +144,7 @@ button{font-family:inherit;}
   font-weight:800; font-size:1.3rem;
 }
 .rest-bar .rest-skip{ background:rgba(0,0,0,.2); border:none; color:#140700; font-weight:800; padding:8px 14px; border-radius:8px; font-size:.9rem; cursor:pointer; }
+body.rest-active{ padding-bottom:150px; }
 
 /* Assistance */
 details.assist{ border:1px solid var(--border); border-radius:12px; padding:2px 14px; margin-top:6px; }
@@ -179,14 +177,23 @@ textarea.note{
 .hist-note{ margin-top:6px; font-size:.88rem; color:var(--text-dim); font-style:italic; }
 .empty{ text-align:center; color:var(--text-dim); padding:40px 10px; }
 
-/* Cierre de ciclo */
-.cierre-lift{ margin-bottom:18px; }
-.cierre-lift h3{ font-size:1.1rem; margin-bottom:8px; }
-.cierre-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.cierre-box{ background:var(--bg-elevated); border:1px solid var(--border); border-radius:12px; padding:12px; }
-.cierre-box .k{ font-size:.72rem; text-transform:uppercase; color:var(--text-dim); font-weight:700; letter-spacing:.04em; }
-.cierre-box .v{ font-size:1.5rem; font-weight:800; margin-top:4px; }
-.cierre-lectura{ margin:10px 0; font-weight:700; color:var(--accent); }
+/* Cierre de ciclo — lista compacta */
+.cierre-row{ border-bottom:1px solid var(--border); padding:14px 0; }
+.cierre-row:last-child{ border-bottom:none; }
+.cierre-row-top{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.cierre-name{ font-size:1.05rem; font-weight:800; }
+.cierre-badge{ font-size:.72rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; }
+.cierre-sugerencias{ margin-top:6px; font-size:.92rem; color:var(--text); }
+.cierre-sugerencias b{ color:var(--text); }
+
+/* Nuevo bloque */
+.tm-input-row{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+.tm-input-label{ font-size:.85rem; font-weight:700; }
+.tm-input-row input{
+  background:var(--bg-card); border:1px solid var(--border); color:var(--text);
+  border-radius:10px; padding:14px; font-size:1.3rem; font-weight:800; width:100%;
+}
+.tm-input-hint{ font-size:.78rem; color:var(--text-dim); }
 
 /* Bottom nav */
 .bottomnav{
@@ -229,6 +236,9 @@ textarea.note{
 <!-- CIERRE -->
 <div id="screen-cierre" class="screen wrap hidden"></div>
 
+<!-- NUEVO BLOQUE -->
+<div id="screen-bloque" class="screen wrap hidden"></div>
+
 <div id="rest-bar-slot"></div>
 
 <nav class="bottomnav">
@@ -266,8 +276,10 @@ const CONFIG = {
   // usuario elige libremente qué día entrenar dentro de la semana activa.
   dayOrder: ["squat", "bench", "deadlift", "ohp"],
 
-  // Semanas del bloque. Numeración real 5–8 (NO se renumera a 1–4).
-  // pcts / reps van en paralelo a las 3 series de trabajo.
+  // Esquema semanal — plantilla reutilizada por todos los bloques (los TM y
+  // la numeración sí cambian por bloque, ver "Nuevo bloque" en el código).
+  // El bloque en curso conserva su numeración real 5–8 (NO se renumera a
+  // 1–4). pcts / reps van en paralelo a las 3 series de trabajo.
   // amrap:false ⇒ ninguna serie de esa semana es AMRAP (deload).
   weeks: [
     { n: 5, label: "5/5/5+",  pcts: [65, 75, 85], reps: [5, 5, 5], amrap: true,  deload: false },
@@ -312,9 +324,10 @@ const CONFIG = {
     ]
   },
 
-  // Cierre de ciclo: reglas según reps del AMRAP de semana 7 (mínimo
-  // prescrito: 1). deltaLower/deltaUpper se suman al TM según category.
-  // La regla "recalcular" usa la fórmula literal del e1RM, ver lógica.
+  // Cierre de ciclo: reglas según reps del AMRAP de la semana fuerte
+  // (5/3/1+, mínimo prescrito: 1) de cualquier bloque. deltaLower/deltaUpper
+  // se suman al TM según category. La regla "recalcular" usa la fórmula
+  // literal del e1RM, ver lógica.
   cierreDeCiclo: {
     reglas: [
       { repsMin: 1, repsMax: 1,        lectura: "TM al límite",  accion: "mantener_o_bajar", delta: -2.5 },
@@ -428,6 +441,8 @@ const STORAGE_KEY = "raf531_v1";
 function defaultState() {
   return {
     weekIndex: 0,
+    blocks: [],
+    currentBlockId: null,
     history: [],
     draft: null
   };
@@ -454,14 +469,47 @@ function saveState() {
   }
 }
 
+// Migración no destructiva: si no hay bloques (instalación nueva o estado
+// guardado con la versión anterior, sin el concepto de bloque), se crea el
+// bloque semilla a partir de CONFIG y se le asigna a cualquier sesión vieja
+// que no tenga blockId todavía. legacyLabel:true conserva el rótulo
+// histórico "Semana 5 a 8" tal cual, sin renumerar.
+function ensureBlocks(s) {
+  if (s.blocks.length === 0) {
+    const seed = {
+      id: "block_seed",
+      number: 1,
+      createdAt: new Date().toISOString(),
+      legacyLabel: true,
+      lifts: CONFIG.dayOrder.reduce((acc, k) => { acc[k] = { ...CONFIG.lifts[k] }; return acc; }, {}),
+      weeks: CONFIG.weeks.map(w => ({ ...w }))
+    };
+    s.blocks.push(seed);
+    s.currentBlockId = seed.id;
+    s.history.forEach(r => { if (!r.blockId) r.blockId = seed.id; });
+  }
+  if (!s.blocks.some(b => b.id === s.currentBlockId)) {
+    s.currentBlockId = s.blocks[s.blocks.length - 1].id;
+  }
+}
+
 let state = loadState();
+ensureBlocks(state);
+saveState();
+
+function currentBlock() { return state.blocks.find(b => b.id === state.currentBlockId); }
+function getBlock(id) { return state.blocks.find(b => b.id === id); }
+// El bloque semilla conserva el total histórico "de 8" (dos ciclos
+// encadenados del documento original); los bloques nuevos muestran su
+// propio largo ("de 4").
+function weekTotalLabel(block) { return block.legacyLabel ? 8 : block.weeks.length; }
 
 /* =========================================================================
-   SESIÓN — construcción de series a partir del CONFIG vigente
+   SESIÓN — construcción de series a partir del bloque activo
    ========================================================================= */
-function buildSets(liftKey, weekIndex) {
-  const lift = CONFIG.lifts[liftKey];
-  const week = CONFIG.weeks[weekIndex];
+function buildSets(block, liftKey, weekIndex) {
+  const lift = block.lifts[liftKey];
+  const week = block.weeks[weekIndex];
   return week.pcts.map((pct, i) => ({
     setNumber: i + 1,
     pct,
@@ -472,13 +520,14 @@ function buildSets(liftKey, weekIndex) {
 }
 
 function ensureDraft(liftKey, weekIndex) {
-  if (state.draft && state.draft.liftKey === liftKey && state.draft.weekIndex === weekIndex) {
+  const block = currentBlock();
+  if (state.draft && state.draft.blockId === block.id && state.draft.liftKey === liftKey && state.draft.weekIndex === weekIndex) {
     return state.draft;
   }
-  const sets = buildSets(liftKey, weekIndex).map(s => ({
+  const sets = buildSets(block, liftKey, weekIndex).map(s => ({
     setNumber: s.setNumber, done: false, actualReps: null, rpe: null
   }));
-  state.draft = { liftKey, weekIndex, sets, note: "" };
+  state.draft = { blockId: block.id, liftKey, weekIndex, sets, note: "" };
   saveState();
   return state.draft;
 }
@@ -523,11 +572,12 @@ function stopRestTimer() {
   if (restInterval) clearInterval(restInterval);
   restInterval = null;
   document.getElementById("rest-bar-slot").innerHTML = "";
+  document.body.classList.remove("rest-active");
 }
 
 function renderRestBar() {
   const slot = document.getElementById("rest-bar-slot");
-  if (!restEndAt) { slot.innerHTML = ""; return; }
+  if (!restEndAt) { slot.innerHTML = ""; document.body.classList.remove("rest-active"); return; }
   const remainingMs = restEndAt - Date.now();
   if (remainingMs <= 0) {
     slot.innerHTML = "";
@@ -535,6 +585,10 @@ function renderRestBar() {
     beep();
     return;
   }
+  // La barra es "fixed" y se suma al bottomnav: sin este padding extra tapa
+  // contenido y botones cerca del final de la pantalla (detectado probando
+  // en un viewport de celular real, no en el default de escritorio).
+  document.body.classList.add("rest-active");
   const totalSec = Math.ceil(remainingMs / 1000);
   const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
   const ss = String(totalSec % 60).padStart(2, "0");
@@ -550,7 +604,7 @@ function renderRestBar() {
    RENDER — router simple entre pantallas
    ========================================================================= */
 function showScreen(name) {
-  ["inicio", "sesion", "historial", "cierre"].forEach(s => {
+  ["inicio", "sesion", "historial", "cierre", "bloque"].forEach(s => {
     document.getElementById("screen-" + s).classList.toggle("hidden", s !== name);
   });
   document.getElementById("nav-inicio").classList.toggle("active", name === "inicio");
@@ -558,47 +612,62 @@ function showScreen(name) {
   window.scrollTo(0, 0);
 }
 
-function currentWeek() { return CONFIG.weeks[state.weekIndex]; }
+function currentWeek() { return currentBlock().weeks[state.weekIndex]; }
 
-// Una sesión "hecha" es cualquier sesión finalizada de ese lift en esa semana.
+// Una sesión "hecha" es cualquier sesión finalizada de ese lift, esa semana,
+// dentro del bloque activo (no mezcla con bloques anteriores).
 function isLiftDoneInWeek(liftKey, weekIndex) {
-  return state.history.some(r => r.liftKey === liftKey && r.weekIndex === weekIndex);
+  const blockId = currentBlock().id;
+  return state.history.some(r => r.liftKey === liftKey && r.weekIndex === weekIndex && r.blockId === blockId);
 }
 
 // Semana completa = los 3 días fijos hechos (el día 4 es opcional, no cuenta).
 function isWeekCoreDone(weekIndex) {
+  const block = currentBlock();
   return CONFIG.dayOrder
-    .filter(k => !CONFIG.lifts[k].optional)
+    .filter(k => !block.lifts[k].optional)
     .every(k => isLiftDoneInWeek(k, weekIndex));
 }
 
 function renderTopbarTag() {
   const tag = document.getElementById("topbar-tag");
+  const block = currentBlock();
   const week = currentWeek();
-  tag.textContent = `Semana ${week.n}/8${week.deload ? " · Deload" : ""}`;
+  const prefix = block.legacyLabel ? "" : `Bloque ${block.number} · `;
+  tag.textContent = `${prefix}Semana ${week.n}/${weekTotalLabel(block)}${week.deload ? " · Deload" : ""}`;
   tag.classList.toggle("pill-deload", week.deload);
   tag.classList.toggle("pill-optional", !week.deload);
 }
 
+// Íconos mínimos por levantamiento — mismo motivo de barra que icon.svg,
+// con un rasgo distintivo por lift (sin librerías externas).
+const LIFT_ICONS = {
+  squat: `<svg viewBox="0 0 40 40" width="30" height="30" fill="currentColor"><rect x="4" y="16" width="6" height="10" rx="1"/><rect x="30" y="16" width="6" height="10" rx="1"/><rect x="8" y="19" width="24" height="4"/><path d="M14 30 L20 36 L26 30 Z"/></svg>`,
+  bench: `<svg viewBox="0 0 40 40" width="30" height="30" fill="currentColor"><rect x="4" y="12" width="6" height="8" rx="1"/><rect x="30" y="12" width="6" height="8" rx="1"/><rect x="8" y="14" width="24" height="4"/><rect x="10" y="28" width="20" height="6" rx="1"/></svg>`,
+  deadlift: `<svg viewBox="0 0 40 40" width="30" height="30" fill="currentColor"><rect x="4" y="26" width="6" height="8" rx="1"/><rect x="30" y="26" width="6" height="8" rx="1"/><rect x="8" y="28" width="24" height="4"/><rect x="6" y="36" width="28" height="2"/></svg>`,
+  ohp: `<svg viewBox="0 0 40 40" width="30" height="30" fill="currentColor"><rect x="4" y="16" width="6" height="8" rx="1"/><rect x="30" y="16" width="6" height="8" rx="1"/><rect x="8" y="18" width="24" height="4"/><path d="M14 10 L20 4 L26 10 Z"/></svg>`
+};
+
 function renderInicio() {
   renderTopbarTag();
   const el = document.getElementById("screen-inicio");
+  const block = currentBlock();
   const week = currentWeek();
+  const blockPrefix = block.legacyLabel ? "" : `Bloque ${block.number} · `;
 
-  const dotsHtml = CONFIG.weeks.map((w, i) => `
+  const dotsHtml = block.weeks.map((w, i) => `
     <div class="dot ${i === state.weekIndex ? "current" : ""} ${isWeekCoreDone(i) ? "done" : ""} ${w.deload ? "deload" : ""}"></div>
   `).join("");
 
   const liftsHtml = CONFIG.dayOrder.map(liftKey => {
-    const lift = CONFIG.lifts[liftKey];
+    const lift = block.lifts[liftKey];
     const done = isLiftDoneInWeek(liftKey, state.weekIndex);
     return `
-      <button class="lift-btn ${done ? "done" : ""}" data-lift="${liftKey}">
-        <span>
-          <span class="lift-name">${lift.label}</span>
-          <span class="lift-meta">${lift.optional ? "Opcional · " : ""}TM ${lift.tm} kg</span>
-        </span>
-        ${done ? '<span class="lift-check">✓</span>' : ""}
+      <button class="lift-tile ${done ? "done" : ""}" data-lift="${liftKey}">
+        ${done ? '<span class="lift-tile-check">✓</span>' : ""}
+        <span class="lift-tile-icon">${LIFT_ICONS[liftKey]}</span>
+        <span class="lift-tile-name">${lift.label}</span>
+        <span class="lift-tile-meta">${lift.optional ? "Opcional · " : ""}${lift.tm} kg</span>
       </button>
     `;
   }).join("");
@@ -608,17 +677,18 @@ function renderInicio() {
     <div class="week-nav">
       <button id="btn-week-prev" ${state.weekIndex === 0 ? "disabled" : ""}>‹</button>
       <div class="week-nav-label">
-        <div class="week-nav-n">Semana ${week.n} de 8</div>
+        <div class="week-nav-n">${blockPrefix}Semana ${week.n} de ${weekTotalLabel(block)}</div>
         <div class="week-nav-scheme">${week.label}</div>
       </div>
-      <button id="btn-week-next" ${state.weekIndex === CONFIG.weeks.length - 1 ? "disabled" : ""}>›</button>
+      <button id="btn-week-next" ${state.weekIndex === block.weeks.length - 1 ? "disabled" : ""}>›</button>
     </div>
     <div class="progress-dots">${dotsHtml}</div>
 
     <div class="section-title">Elegí el día</div>
-    ${liftsHtml}
+    <div class="lift-grid">${liftsHtml}</div>
 
-    ${hasWeek7DataAnyLift() ? `<button class="btn btn-ghost" id="btn-cierre" style="margin-top:12px;">Ver cierre de ciclo</button>` : ""}
+    ${hasCierreDataAnyLift() ? `<button class="btn btn-ghost" id="btn-cierre" style="margin-top:12px;">Ver cierre de ciclo</button>` : ""}
+    <button class="btn btn-ghost" id="btn-nuevo-bloque" style="margin-top:12px;">Nuevo bloque</button>
     ${ioButtonsHtml()}
     <p class="io-caption">El historial se guarda solo en este navegador y este teléfono. Si cambiás de celular o de navegador, exportá antes para no perderlo.</p>
   `;
@@ -634,9 +704,10 @@ function renderInicio() {
   const prevBtn = document.getElementById("btn-week-prev");
   const nextBtn = document.getElementById("btn-week-next");
   if (prevBtn) prevBtn.onclick = () => { state.weekIndex = Math.max(0, state.weekIndex - 1); saveState(); renderInicio(); };
-  if (nextBtn) nextBtn.onclick = () => { state.weekIndex = Math.min(CONFIG.weeks.length - 1, state.weekIndex + 1); saveState(); renderInicio(); };
+  if (nextBtn) nextBtn.onclick = () => { state.weekIndex = Math.min(block.weeks.length - 1, state.weekIndex + 1); saveState(); renderInicio(); };
   const cierreBtn = document.getElementById("btn-cierre");
   if (cierreBtn) cierreBtn.onclick = () => { renderCierre(); showScreen("cierre"); };
+  document.getElementById("btn-nuevo-bloque").onclick = () => { renderNuevoBloque(); showScreen("bloque"); };
   wireIoButtons();
 }
 
@@ -644,11 +715,12 @@ function renderSesion() {
   renderTopbarTag();
   const el = document.getElementById("screen-sesion");
   const draft = state.draft;
+  const block = getBlock(draft.blockId) || currentBlock();
   const liftKey = draft.liftKey;
   const weekIndex = draft.weekIndex;
-  const lift = CONFIG.lifts[liftKey];
-  const week = CONFIG.weeks[weekIndex];
-  const sets = buildSets(liftKey, weekIndex);
+  const lift = block.lifts[liftKey];
+  const week = block.weeks[weekIndex];
+  const sets = buildSets(block, liftKey, weekIndex);
 
   const setsHtml = sets.map((s, i) => {
     const d = draft.sets[i];
@@ -727,7 +799,16 @@ function renderSesion() {
     inp.oninput = () => {
       const idx = Number(inp.dataset.set);
       const field = inp.dataset.field;
-      draft.sets[idx][field] = inp.value === "" ? null : Number(inp.value);
+      if (inp.value === "") { draft.sets[idx][field] = null; saveState(); return; }
+      let val = Number(inp.value);
+      if (Number.isNaN(val)) return;
+      // RPE: acotado en vivo a 1-10 en pasos de 0.5, para no guardar valores
+      // imposibles (por ejemplo, tipear el peso por error en vez del RPE).
+      if (field === "rpe") {
+        val = Math.min(10, Math.max(1, Math.round(val * 2) / 2));
+        if (String(val) !== inp.value) inp.value = val;
+      }
+      draft.sets[idx][field] = val;
       saveState();
     };
   });
@@ -743,14 +824,16 @@ function renderSesion() {
 
 function finalizarSesion() {
   const draft = state.draft;
+  const block = getBlock(draft.blockId) || currentBlock();
   const liftKey = draft.liftKey;
   const weekIndex = draft.weekIndex;
-  const week = CONFIG.weeks[weekIndex];
-  const sets = buildSets(liftKey, weekIndex);
+  const week = block.weeks[weekIndex];
+  const sets = buildSets(block, liftKey, weekIndex);
 
   const record = {
     id: Date.now() + "_" + liftKey,
     timestamp: new Date().toISOString(),
+    blockId: block.id,
     liftKey,
     weekIndex,
     weekN: week.n,
@@ -790,6 +873,8 @@ function renderHistorial() {
   const sessions = state.history.filter(r => r.liftKey === historialTab);
   const listHtml = sessions.length ? sessions.map(r => {
     const fecha = new Date(r.timestamp).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    const recBlock = getBlock(r.blockId);
+    const blockPrefix = recBlock && !recBlock.legacyLabel ? `Bloque ${recBlock.number} · ` : "";
     const setsText = r.sets.map(s => {
       if (s.isAmrap) {
         const reps = s.actualReps != null ? s.actualReps : "?";
@@ -802,7 +887,7 @@ function renderHistorial() {
       <div class="hist-row">
         <div class="hist-top">
           <span>${fecha}</span>
-          <span class="hist-week">Semana ${r.weekN} · ${r.weekLabel}${r.deload ? " · DELOAD" : ""}</span>
+          <span class="hist-week">${blockPrefix}Semana ${r.weekN} · ${r.weekLabel}${r.deload ? " · DELOAD" : ""}</span>
         </div>
         <div class="hist-sets">${setsText}</div>
         ${r.note ? `<div class="hist-note">"${r.note}"</div>` : ""}
@@ -822,66 +907,72 @@ function renderHistorial() {
 }
 
 /* =========================================================================
-   CIERRE DE CICLO
+   CIERRE DE CICLO — usa el AMRAP de la semana fuerte (5/3/1+, la anteúltima
+   de cualquier bloque, sea cual sea su numeración) del bloque activo.
    ========================================================================= */
-function hasWeek7DataAnyLift() {
-  return CONFIG.dayOrder.some(k => findWeek7Amrap(k) !== null);
-}
+function cierreWeekIndex(block) { return block.weeks.length - 2; }
 
-function findWeek7Amrap(liftKey) {
-  const rec = state.history.find(r => r.liftKey === liftKey && r.weekN === 7);
+function findCierreAmrap(liftKey, block) {
+  const wi = cierreWeekIndex(block);
+  const rec = state.history.find(r => r.liftKey === liftKey && r.blockId === block.id && r.weekIndex === wi);
   if (!rec) return null;
   const amrapSet = rec.sets.find(s => s.isAmrap);
   if (!amrapSet || amrapSet.actualReps == null) return null;
   return { record: rec, set: amrapSet };
 }
 
+function hasCierreDataAnyLift() {
+  const block = currentBlock();
+  return CONFIG.dayOrder.some(k => findCierreAmrap(k, block) !== null);
+}
+
 function reglaPara(reps) {
   return CONFIG.cierreDeCiclo.reglas.find(r => reps >= r.repsMin && reps <= r.repsMax);
 }
 
+// Sugerencia por tabla de incrementos (texto corto, sin unidad).
+function sugerenciaTabla(lift, reps) {
+  const regla = reglaPara(reps);
+  if (regla.accion === "mantener_o_bajar") return `${lift.tm} o ${redondear(lift.tm + regla.delta)}`;
+  if (regla.accion === "sumar") {
+    const delta = lift.category === "lower" ? regla.deltaLower : regla.deltaUpper;
+    return `${redondear(lift.tm + delta)}`;
+  }
+  return null; // "recalcular" no tiene número de tabla, solo e1RM
+}
+
 function renderCierre() {
   const el = document.getElementById("screen-cierre");
-  const bloques = CONFIG.dayOrder.map(liftKey => {
-    const lift = CONFIG.lifts[liftKey];
-    const data = findWeek7Amrap(liftKey);
+  const block = currentBlock();
+  const filas = CONFIG.dayOrder.map(liftKey => {
+    const lift = block.lifts[liftKey];
+    const data = findCierreAmrap(liftKey, block);
     if (!data) {
-      return `<div class="cierre-lift"><h3>${lift.label}</h3><p class="muted">Sin AMRAP de semana 7 registrado todavía.</p></div>`;
+      return `
+        <div class="cierre-row">
+          <div class="cierre-row-top"><span class="cierre-name">${lift.label}</span></div>
+          <div class="muted">Sin AMRAP registrado en la semana fuerte de este bloque.</div>
+        </div>`;
     }
     const { set } = data;
     const weight = set.weight;
     const reps = set.actualReps;
     const regla = reglaPara(reps);
-
-    // Sugerencia por tabla de incrementos
-    let tablaTexto;
-    if (regla.accion === "mantener_o_bajar") {
-      tablaTexto = `${lift.tm} kg (repetir) o ${lift.tm + regla.delta} kg`;
-    } else if (regla.accion === "sumar") {
-      const delta = lift.category === "lower" ? regla.deltaLower : regla.deltaUpper;
-      tablaTexto = `${redondear(lift.tm + delta)} kg`;
-    } else {
-      tablaTexto = "ver e1RM →";
-    }
+    const tabla = sugerenciaTabla(lift, reps);
 
     // e1RM literal: (peso × reps × 0.0333) + peso
     const e1rm = (weight * reps * 0.0333) + weight;
     const tmSugeridoE1rm = redondear(e1rm * 0.9);
 
     return `
-      <div class="cierre-lift">
-        <h3>${lift.label}</h3>
-        <div class="muted">TM actual: ${lift.tm} kg · AMRAP: ${weight}kg x ${reps}${set.rpe != null ? ` (RPE ${set.rpe})` : ""}</div>
-        <div class="cierre-lectura">${regla.lectura}</div>
-        <div class="cierre-grid">
-          <div class="cierre-box">
-            <div class="k">Sugerencia por tabla</div>
-            <div class="v">${tablaTexto}</div>
-          </div>
-          <div class="cierre-box">
-            <div class="k">e1RM / TM (90%)</div>
-            <div class="v">${redondear(e1rm)} / ${tmSugeridoE1rm} kg</div>
-          </div>
+      <div class="cierre-row">
+        <div class="cierre-row-top">
+          <span class="cierre-name">${lift.label}</span>
+          <span class="cierre-badge">${regla.lectura}</span>
+        </div>
+        <div class="muted">TM actual ${lift.tm} kg · AMRAP ${weight}kg x ${reps}${set.rpe != null ? ` (RPE ${set.rpe})` : ""}</div>
+        <div class="cierre-sugerencias">
+          ${tabla ? `Tabla → <b>${tabla} kg</b> &nbsp;·&nbsp; ` : ""}e1RM → <b>${redondear(e1rm)} kg</b> (TM sugerido <b>${tmSugeridoE1rm} kg</b>)
         </div>
       </div>
     `;
@@ -890,10 +981,87 @@ function renderCierre() {
   el.innerHTML = `
     <button class="btn btn-ghost btn-sm" id="btn-volver-cierre" style="width:auto;">← Volver</button>
     <div class="section-title" style="margin-top:14px;">Cierre de ciclo</div>
-    <p class="muted">Basado en el AMRAP de semana 7. Estos números son una propuesta — vos decidís y los pasás manualmente al objeto CONFIG del HTML para el próximo bloque.</p>
-    ${bloques}
+    <p class="muted">Basado en el AMRAP de la semana fuerte de este bloque.</p>
+    ${filas}
+    <button class="btn btn-primary" id="btn-ir-nuevo-bloque" style="margin-top:18px;">→ Armar bloque nuevo</button>
   `;
   document.getElementById("btn-volver-cierre").onclick = () => { showScreen("inicio"); renderInicio(); };
+  document.getElementById("btn-ir-nuevo-bloque").onclick = () => { renderNuevoBloque(); showScreen("bloque"); };
+}
+
+/* =========================================================================
+   NUEVO BLOQUE — TM editables desde la app, sin tocar CONFIG en el HTML.
+   Reutiliza el esquema semanal de CONFIG.weeks (porcentajes/reps/deload),
+   solo cambian los TM y la numeración (se reinicia: "Bloque N · Semana 1").
+   ========================================================================= */
+function renderNuevoBloque() {
+  const el = document.getElementById("screen-bloque");
+  const block = currentBlock();
+
+  const filasHtml = CONFIG.dayOrder.map(liftKey => {
+    const lift = block.lifts[liftKey];
+    const data = findCierreAmrap(liftKey, block);
+    let sugerido = lift.tm;
+    let hint = "";
+    if (data) {
+      const { set } = data;
+      const e1rm = (set.weight * set.actualReps * 0.0333) + set.weight;
+      sugerido = redondear(e1rm * 0.9);
+      const tabla = sugerenciaTabla(lift, set.actualReps);
+      hint = tabla ? `Sugerido: ${sugerido} kg (e1RM) · Tabla: ${tabla} kg` : `Sugerido: ${sugerido} kg (e1RM)`;
+    }
+    return `
+      <label class="tm-input-row">
+        <span class="tm-input-label">${lift.label}</span>
+        <input type="number" inputmode="decimal" step="2.5" min="0" data-lift-tm="${liftKey}" value="${sugerido}">
+        ${hint ? `<span class="tm-input-hint">${hint}</span>` : ""}
+      </label>
+    `;
+  }).join("");
+
+  el.innerHTML = `
+    <button class="btn btn-ghost btn-sm" id="btn-volver-bloque" style="width:auto;">← Volver</button>
+    <div class="section-title" style="margin-top:14px;">Nuevo bloque</div>
+    <p class="muted">Cargá el Training Max de cada levantamiento para arrancar el Bloque ${block.number + 1}. Se precargan con la sugerencia del cierre de ciclo cuando hay datos.</p>
+    ${filasHtml}
+    <button class="btn btn-primary" id="btn-crear-bloque" style="margin-top:8px;">Crear bloque</button>
+  `;
+
+  document.getElementById("btn-volver-bloque").onclick = () => { showScreen("inicio"); renderInicio(); };
+  document.getElementById("btn-crear-bloque").onclick = crearBloqueNuevo;
+}
+
+function crearBloqueNuevo() {
+  const inputs = document.querySelectorAll("[data-lift-tm]");
+  const nuevosLifts = {};
+  let valido = true;
+  inputs.forEach(inp => {
+    const val = Number(inp.value);
+    if (!Number.isFinite(val) || val <= 0) valido = false;
+    nuevosLifts[inp.dataset.liftTm] = val;
+  });
+  if (!valido) { alert("Todos los TM tienen que ser números positivos."); return; }
+
+  const prevBlock = currentBlock();
+  const newBlock = {
+    id: "block_" + Date.now(),
+    number: prevBlock.number + 1,
+    createdAt: new Date().toISOString(),
+    legacyLabel: false,
+    lifts: CONFIG.dayOrder.reduce((acc, k) => {
+      acc[k] = { ...CONFIG.lifts[k], tm: nuevosLifts[k] };
+      return acc;
+    }, {}),
+    weeks: CONFIG.weeks.map((w, i) => ({ ...w, n: i + 1 }))
+  };
+
+  state.blocks.push(newBlock);
+  state.currentBlockId = newBlock.id;
+  state.weekIndex = 0;
+  state.draft = null;
+  saveState();
+  showScreen("inicio");
+  renderInicio();
 }
 
 /* =========================================================================
@@ -947,6 +1115,7 @@ function importHistorial(e) {
       if (!parsed || !Array.isArray(parsed.history)) throw new Error("Formato inválido");
       if (!confirm(`Importar reemplazará el estado actual (${state.history.length} sesiones) por el del archivo (${parsed.history.length} sesiones). ¿Continuar?`)) return;
       state = Object.assign(defaultState(), parsed);
+      ensureBlocks(state);
       saveState();
       renderInicio();
       renderHistorial();
