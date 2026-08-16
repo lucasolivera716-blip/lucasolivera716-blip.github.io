@@ -74,6 +74,37 @@ button{font-family:inherit;}
   padding:16px; text-align:center; margin-bottom:16px;
 }
 
+/* Selector de semana + progreso */
+.week-nav{ display:flex; align-items:center; justify-content:center; gap:18px; padding:10px 0 4px; }
+.week-nav button{
+  background:var(--bg-card); border:1px solid var(--border); color:var(--text);
+  width:44px; height:44px; border-radius:12px; font-size:1.3rem; font-weight:700; cursor:pointer;
+}
+.week-nav button:disabled{ opacity:.3; }
+.week-nav .week-nav-label{ text-align:center; min-width:170px; }
+.week-nav .week-nav-n{ font-size:1.3rem; font-weight:800; }
+.week-nav .week-nav-scheme{ font-size:.85rem; color:var(--text-dim); font-weight:600; }
+.progress-dots{ display:flex; justify-content:center; gap:10px; margin:14px 0 20px; }
+.progress-dots .dot{
+  width:34px; height:8px; border-radius:99px; background:var(--bg-card); border:1px solid var(--border);
+}
+.progress-dots .dot.current{ border-color:var(--accent); }
+.progress-dots .dot.done{ background:var(--done); border-color:var(--done); }
+.progress-dots .dot.deload.done{ background:var(--deload); border-color:var(--deload); }
+
+/* Botones de elección de día / grupo muscular */
+.lift-btn{
+  display:flex; align-items:center; justify-content:space-between; width:100%;
+  background:var(--bg-card); border:1px solid var(--border); border-radius:14px;
+  padding:16px 18px; margin-bottom:10px; cursor:pointer; text-align:left;
+}
+.lift-btn:active{ transform:scale(0.98); }
+.lift-btn .lift-name{ font-size:1.15rem; font-weight:800; display:block; }
+.lift-btn .lift-meta{ font-size:.82rem; color:var(--text-dim); font-weight:600; margin-top:2px; display:block; }
+.lift-btn .lift-check{ font-size:1.3rem; color:var(--done); font-weight:800; margin-left:12px; flex:0 0 auto; }
+.lift-btn.done{ border-color:var(--done); }
+.io-caption{ font-size:.8rem; color:var(--text-dim); margin-top:8px; line-height:1.4; }
+
 /* Sesion sets */
 .set-card{
   background:var(--bg-card); border:1px solid var(--border); border-radius:16px;
@@ -183,7 +214,7 @@ textarea.note{
 
 <div class="topbar">
   <div class="brand">5<span class="accent">/</span>3<span class="accent">/</span>1</div>
-  <div id="topbar-tag" class="pill pill-optional">Bloque S5–S8</div>
+  <div id="topbar-tag" class="pill pill-optional">Semana –/8</div>
 </div>
 
 <!-- INICIO -->
@@ -231,7 +262,8 @@ const CONFIG = {
     ohp:      { label: "Press Militar", tm: 47.5,  category: "upper", optional: true  }
   },
 
-  // Orden fijo de los días de entrenamiento.
+  // Orden de visualización de los levantamientos. No fuerza secuencia: el
+  // usuario elige libremente qué día entrenar dentro de la semana activa.
   dayOrder: ["squat", "bench", "deadlift", "ohp"],
 
   // Semanas del bloque. Numeración real 5–8 (NO se renumera a 1–4).
@@ -396,8 +428,6 @@ const STORAGE_KEY = "raf531_v1";
 function defaultState() {
   return {
     weekIndex: 0,
-    dayIndex: 0,
-    blockComplete: false,
     history: [],
     draft: null
   };
@@ -528,71 +558,90 @@ function showScreen(name) {
   window.scrollTo(0, 0);
 }
 
-function currentLiftKey() { return CONFIG.dayOrder[state.dayIndex]; }
 function currentWeek() { return CONFIG.weeks[state.weekIndex]; }
 
+// Una sesión "hecha" es cualquier sesión finalizada de ese lift en esa semana.
+function isLiftDoneInWeek(liftKey, weekIndex) {
+  return state.history.some(r => r.liftKey === liftKey && r.weekIndex === weekIndex);
+}
+
+// Semana completa = los 3 días fijos hechos (el día 4 es opcional, no cuenta).
+function isWeekCoreDone(weekIndex) {
+  return CONFIG.dayOrder
+    .filter(k => !CONFIG.lifts[k].optional)
+    .every(k => isLiftDoneInWeek(k, weekIndex));
+}
+
+function renderTopbarTag() {
+  const tag = document.getElementById("topbar-tag");
+  const week = currentWeek();
+  tag.textContent = `Semana ${week.n}/8${week.deload ? " · Deload" : ""}`;
+  tag.classList.toggle("pill-deload", week.deload);
+  tag.classList.toggle("pill-optional", !week.deload);
+}
+
 function renderInicio() {
+  renderTopbarTag();
   const el = document.getElementById("screen-inicio");
   const week = currentWeek();
-  const liftKey = currentLiftKey();
-  const lift = CONFIG.lifts[liftKey];
 
-  if (state.blockComplete) {
-    el.innerHTML = `
-      <div class="block-complete">
-        <h2>Bloque completo</h2>
-        <p class="muted">Terminaste las 4 semanas. Revisá el cierre de ciclo con los AMRAP de semana 7 para definir el próximo TM.</p>
-      </div>
-      <button class="btn btn-primary" id="btn-ver-cierre">Ver cierre de ciclo</button>
-      <button class="btn btn-ghost" id="btn-reiniciar" style="margin-top:12px;">Reiniciar bloque (semana 5, día 1)</button>
-      ${ioButtonsHtml()}
+  const dotsHtml = CONFIG.weeks.map((w, i) => `
+    <div class="dot ${i === state.weekIndex ? "current" : ""} ${isWeekCoreDone(i) ? "done" : ""} ${w.deload ? "deload" : ""}"></div>
+  `).join("");
+
+  const liftsHtml = CONFIG.dayOrder.map(liftKey => {
+    const lift = CONFIG.lifts[liftKey];
+    const done = isLiftDoneInWeek(liftKey, state.weekIndex);
+    return `
+      <button class="lift-btn ${done ? "done" : ""}" data-lift="${liftKey}">
+        <span>
+          <span class="lift-name">${lift.label}</span>
+          <span class="lift-meta">${lift.optional ? "Opcional · " : ""}TM ${lift.tm} kg</span>
+        </span>
+        ${done ? '<span class="lift-check">✓</span>' : ""}
+      </button>
     `;
-    document.getElementById("btn-ver-cierre").onclick = () => { renderCierre(); showScreen("cierre"); };
-    document.getElementById("btn-reiniciar").onclick = () => {
-      if (confirm("Esto vuelve el puntero a semana 5 / día 1. El historial NO se borra. ¿Continuar?")) {
-        state.weekIndex = 0; state.dayIndex = 0; state.blockComplete = false; state.draft = null;
-        saveState(); renderInicio();
-      }
-    };
-    wireIoButtons();
-    return;
-  }
+  }).join("");
 
   el.innerHTML = `
     ${week.deload ? `<div class="deload-banner">SEMANA DE DELOAD — bajá la intensidad</div>` : ""}
-    <div class="inicio-status">
-      <div class="inicio-week">Semana ${week.n} de 8 · ${week.label}</div>
-      <div class="inicio-day">${lift.label}${lift.optional ? ' <span class="pill pill-optional">Opcional</span>' : ""}</div>
+    <div class="week-nav">
+      <button id="btn-week-prev" ${state.weekIndex === 0 ? "disabled" : ""}>‹</button>
+      <div class="week-nav-label">
+        <div class="week-nav-n">Semana ${week.n} de 8</div>
+        <div class="week-nav-scheme">${week.label}</div>
+      </div>
+      <button id="btn-week-next" ${state.weekIndex === CONFIG.weeks.length - 1 ? "disabled" : ""}>›</button>
     </div>
-    <button class="btn btn-primary" id="btn-entrar">Entrar a la sesión</button>
-    ${lift.optional ? `<button class="btn btn-ghost" id="btn-saltear" style="margin-top:12px;">Saltear día 4 esta semana</button>` : ""}
+    <div class="progress-dots">${dotsHtml}</div>
+
+    <div class="section-title">Elegí el día</div>
+    ${liftsHtml}
+
     ${hasWeek7DataAnyLift() ? `<button class="btn btn-ghost" id="btn-cierre" style="margin-top:12px;">Ver cierre de ciclo</button>` : ""}
     ${ioButtonsHtml()}
+    <p class="io-caption">El historial se guarda solo en este navegador y este teléfono. Si cambiás de celular o de navegador, exportá antes para no perderlo.</p>
   `;
-  document.getElementById("btn-entrar").onclick = () => { ensureDraft(liftKey, state.weekIndex); renderSesion(); showScreen("sesion"); };
-  const saltear = document.getElementById("btn-saltear");
-  if (saltear) saltear.onclick = () => { advanceDay(); renderInicio(); };
+
+  el.querySelectorAll("[data-lift]").forEach(btn => {
+    btn.onclick = () => {
+      const liftKey = btn.dataset.lift;
+      ensureDraft(liftKey, state.weekIndex);
+      renderSesion();
+      showScreen("sesion");
+    };
+  });
+  const prevBtn = document.getElementById("btn-week-prev");
+  const nextBtn = document.getElementById("btn-week-next");
+  if (prevBtn) prevBtn.onclick = () => { state.weekIndex = Math.max(0, state.weekIndex - 1); saveState(); renderInicio(); };
+  if (nextBtn) nextBtn.onclick = () => { state.weekIndex = Math.min(CONFIG.weeks.length - 1, state.weekIndex + 1); saveState(); renderInicio(); };
   const cierreBtn = document.getElementById("btn-cierre");
   if (cierreBtn) cierreBtn.onclick = () => { renderCierre(); showScreen("cierre"); };
   wireIoButtons();
 }
 
-function advanceDay() {
-  if (state.dayIndex < CONFIG.dayOrder.length - 1) {
-    state.dayIndex += 1;
-  } else {
-    state.dayIndex = 0;
-    if (state.weekIndex < CONFIG.weeks.length - 1) {
-      state.weekIndex += 1;
-    } else {
-      state.blockComplete = true;
-    }
-  }
-  state.draft = null;
-  saveState();
-}
-
 function renderSesion() {
+  renderTopbarTag();
   const el = document.getElementById("screen-sesion");
   const draft = state.draft;
   const liftKey = draft.liftKey;
@@ -720,8 +769,8 @@ function finalizarSesion() {
   };
 
   state.history.unshift(record);
+  state.draft = null;
   stopRestTimer();
-  advanceDay();
   saveState();
   showScreen("inicio");
   renderInicio();
