@@ -685,6 +685,7 @@ function renderInicio() {
     <div class="lift-grid">${liftsHtml}</div>
 
     ${hasCierreDataAnyLift() ? `<button class="btn btn-ghost" id="btn-cierre" style="margin-top:12px;">Ver cierre de ciclo</button>` : ""}
+    <button class="btn btn-ghost" id="btn-editar-tm" style="margin-top:12px;">Editar TM</button>
     <button class="btn btn-ghost" id="btn-nuevo-bloque" style="margin-top:12px;">Nuevo bloque</button>
     ${ioButtonsHtml()}
     <p class="io-caption">El historial se guarda solo en este navegador y este teléfono. Si cambiás de celular o de navegador, exportá antes para no perderlo.</p>
@@ -704,6 +705,7 @@ function renderInicio() {
   if (nextBtn) nextBtn.onclick = () => { state.weekIndex = Math.min(block.weeks.length - 1, state.weekIndex + 1); saveState(); renderInicio(); };
   const cierreBtn = document.getElementById("btn-cierre");
   if (cierreBtn) cierreBtn.onclick = () => { renderCierre(); showScreen("cierre"); };
+  document.getElementById("btn-editar-tm").onclick = () => { renderEditarTm(); showScreen("bloque"); };
   document.getElementById("btn-nuevo-bloque").onclick = () => { renderNuevoBloque(); showScreen("bloque"); };
   wireIoButtons();
 }
@@ -984,6 +986,52 @@ function renderCierre() {
   `;
   document.getElementById("btn-volver-cierre").onclick = () => { showScreen("inicio"); renderInicio(); };
   document.getElementById("btn-ir-nuevo-bloque").onclick = () => { renderNuevoBloque(); showScreen("bloque"); };
+}
+
+/* =========================================================================
+   EDITAR TM — corrige el TM del bloque ACTUAL en el lugar (no crea un
+   bloque nuevo, no toca semana/número/historial). Para cuando te
+   equivocaste al crear el bloque o cambia tu 1RM a mitad de bloque.
+   ========================================================================= */
+function renderEditarTm() {
+  const el = document.getElementById("screen-bloque");
+  const block = currentBlock();
+
+  const filasHtml = CONFIG.dayOrder.map(liftKey => {
+    const lift = block.lifts[liftKey];
+    return `
+      <label class="tm-input-row">
+        <span class="tm-input-label">${lift.label}</span>
+        <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" data-lift-tm="${liftKey}" value="${lift.tm}">
+      </label>
+    `;
+  }).join("");
+
+  el.innerHTML = `
+    <button class="btn btn-ghost btn-sm" id="btn-volver-bloque" style="width:auto;">← Volver</button>
+    <div class="section-title" style="margin-top:14px;">Editar TM</div>
+    <p class="muted">Corregí el Training Max del bloque actual. No crea un bloque nuevo ni toca tu semana ni tu historial.</p>
+    ${filasHtml}
+    <button class="btn btn-primary" id="btn-guardar-tm" style="margin-top:8px;">Guardar TM</button>
+  `;
+
+  document.getElementById("btn-volver-bloque").onclick = () => { showScreen("inicio"); renderInicio(); };
+  document.getElementById("btn-guardar-tm").onclick = () => {
+    const inputs = document.querySelectorAll("[data-lift-tm]");
+    const nuevosTm = {};
+    let valido = true;
+    inputs.forEach(inp => {
+      const val = Number(inp.value.replace(",", "."));
+      if (!Number.isFinite(val) || val <= 0) valido = false;
+      nuevosTm[inp.dataset.liftTm] = val;
+    });
+    if (!valido) { alert("Todos los TM tienen que ser números positivos."); return; }
+
+    CONFIG.dayOrder.forEach(k => { block.lifts[k].tm = nuevosTm[k]; });
+    saveState();
+    showScreen("inicio");
+    renderInicio();
+  };
 }
 
 /* =========================================================================
