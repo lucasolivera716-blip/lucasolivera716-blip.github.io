@@ -737,7 +737,7 @@ function renderSesion() {
             <input type="number" inputmode="numeric" min="0" data-field="actualReps" data-set="${i}" value="${d.actualReps ?? ""}">
           </label>
           <label>RPE
-            <input type="number" inputmode="decimal" step="0.5" min="1" max="10" data-field="rpe" data-set="${i}" value="${d.rpe ?? ""}">
+            <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" data-field="rpe" data-set="${i}" value="${d.rpe ?? ""}">
           </label>
         </div>` : ""}
         <button class="check-btn ${d.done ? "checked" : ""}" data-toggle="${i}" style="margin-top:12px;">
@@ -797,7 +797,7 @@ function renderSesion() {
       const idx = Number(inp.dataset.set);
       const field = inp.dataset.field;
       if (inp.value === "") { draft.sets[idx][field] = null; saveState(); return; }
-      let val = Number(inp.value);
+      let val = Number(inp.value.replace(",", "."));
       if (Number.isNaN(val)) return;
       // RPE: acotado en vivo a 1-10 en pasos de 0.5, para no guardar valores
       // imposibles (por ejemplo, tipear el peso por error en vez del RPE).
@@ -1010,7 +1010,7 @@ function renderNuevoBloque() {
     return `
       <label class="tm-input-row">
         <span class="tm-input-label">${lift.label}</span>
-        <input type="number" inputmode="decimal" step="2.5" min="0" data-lift-tm="${liftKey}" value="${sugerido}">
+        <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" data-lift-tm="${liftKey}" value="${sugerido}">
         ${hint ? `<span class="tm-input-hint">${hint}</span>` : ""}
       </label>
     `;
@@ -1033,7 +1033,7 @@ function crearBloqueNuevo() {
   const nuevosLifts = {};
   let valido = true;
   inputs.forEach(inp => {
-    const val = Number(inp.value);
+    const val = Number(inp.value.replace(",", "."));
     if (!Number.isFinite(val) || val <= 0) valido = false;
     nuevosLifts[inp.dataset.liftTm] = val;
   });
@@ -1139,6 +1139,15 @@ function init() {
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("./sw.js").catch(err => console.warn("SW no registrado:", err));
+    });
+    // Si entra una versión nueva del Service Worker (deploy nuevo) y toma
+    // control, recargamos solos para no dejar al usuario viendo contenido
+    // viejo cacheado hasta que se le ocurra refrescar a mano.
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloaded) return;
+      reloaded = true;
+      window.location.reload();
     });
   }
 }
