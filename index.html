@@ -266,15 +266,16 @@ const CONFIG = {
   // 90% del 1RM histórico). "category" define qué incremento de cierre de
   // ciclo le corresponde (lower vs upper body).
   lifts: {
-    squat:    { label: "Back Squat",    tm: 102.5, category: "lower", optional: false },
-    bench:    { label: "Press Banca",   tm: 92.5,  category: "upper", optional: false },
-    deadlift: { label: "Peso Muerto",   tm: 137.5, category: "lower", optional: false },
-    ohp:      { label: "Press Militar", tm: 47.5,  category: "upper", optional: true  }
+    squat:    { label: "Back Squat",    tm: 107.5, category: "lower", optional: false },
+    bench:    { label: "Press Banca",   tm: 97.5,  category: "upper", optional: false },
+    deadlift: { label: "Peso Muerto",   tm: 137.5, category: "lower", optional: false }
   },
 
   // Orden de visualización de los levantamientos. No fuerza secuencia: el
   // usuario elige libremente qué día entrenar dentro de la semana activa.
-  dayOrder: ["squat", "bench", "deadlift", "ohp"],
+  // Press Militar dejó de ser levantamiento principal en el Bloque 2
+  // (semanas 9-12): pasó a asistencia del día de banca, ver "assistance.bench".
+  dayOrder: ["squat", "bench", "deadlift"],
 
   // Esquema semanal — plantilla reutilizada por todos los bloques (los TM y
   // la numeración sí cambian por bloque, ver "Nuevo bloque" en el código).
@@ -295,32 +296,29 @@ const CONFIG = {
   // defecto en la pantalla de Sesión.
   assistance: {
     squat: [
-      { name: "Box Jump (cajón)", sets: 3, reps: "3", notes: "ANTES del Squat principal. Explosivo, aterrizaje suave. Activación neural." },
-      { name: "Front Squat o Squat Pausa", sets: 3, reps: "8", notes: "60-65% del TM de squat. Profundidad total, pausa 1s abajo." },
+      { name: "Box Jump (cajón)", sets: 3, reps: "3", notes: "Antes del Squat principal. Explosivo, aterrizaje suave. Activación neural." },
+      { name: "Bulgarian Split Squat", sets: 3, reps: "8 c/pierna", notes: "Pie trasero elevado. Control motor, sin colapso de rodilla." },
       { name: "Hip Thrust con barra", sets: 3, reps: "10", notes: "Glúteo. Pausa 1s arriba, contracción máxima." },
-      { name: "Walking Lunges con mancuernas", sets: 3, reps: "12 pasos", notes: "Control. Rodilla alineada con el pie." },
-      { name: "Pallof Press", sets: 3, reps: "12 c/lado", notes: "Anti-rotación. Cierre de core." }
+      { name: "Nórdico o Curl Femoral", sets: 3, reps: "8", notes: "Isquios, énfasis excéntrico. Bajá lento y controlado." },
+      { name: "Pallof Press", sets: 3, reps: "12 c/lado", notes: "Anti-rotación. Cierre de core." },
+      { name: "Leg Extension", sets: 3, reps: "12-15", notes: "Cuádriceps aislado. Ritmo controlado, sin rebote." },
+      { name: "Leg Press", sets: 3, reps: "10-12", notes: "Volumen extra de pierna. Rango completo, talones apoyados." }
     ],
     bench: [
-      { name: "Remo Pendlay", sets: 4, reps: "6", notes: "Explosivo hacia el ombligo. Tronco paralelo al piso. Empezá con 50-60kg." },
-      { name: "Press Inclinado con mancuernas", sets: 3, reps: "10", notes: "Hombro alto, pecho. Agarre neutro si sentís hombro." },
-      { name: "Remo con mancuerna a un brazo", sets: 3, reps: "10 c/brazo", notes: "Apoyo en banco, estira el dorsal abajo." },
-      { name: "Face Pulls", sets: 3, reps: "15", notes: "Banda media. Salud de hombro, mantenelo." },
-      { name: "Tríceps (paralelas asistidas o press francés)", sets: 3, reps: "12", notes: "Lo que tengas disponible." }
+      { name: "Press Militar", sets: 3, reps: "8", notes: "Techo RPE7 — parate ahí, no busques fallo. Referencia: TM 50kg." },
+      { name: "Fondos lastrados", sets: 3, reps: "6-8", notes: "Peso agregado 34kg. Codos pegados al cuerpo, control abajo." },
+      { name: "Rompecráneos", sets: 2, reps: "10", notes: "Tríceps. Codos fijos, barra a la frente controlada." },
+      { name: "Dominadas", sets: 3, reps: "al fallo -2", notes: "Parás 2 reps antes del fallo técnico." },
+      { name: "Remo Pendlay", sets: 2, reps: "6", notes: "Explosivo hacia el ombligo. Tronco paralelo al piso." },
+      { name: "Face Pulls", sets: 4, reps: "15", notes: "Banda media. Salud de hombro, mantenelo." },
+      { name: "Band Pull-aparts", sets: 3, reps: "20", notes: "Banda liviana, controlado. Salud de hombro." }
     ],
     deadlift: [
       { name: "Peso Muerto Rumano", sets: 3, reps: "8", notes: "60% del TM de peso muerto. Lento abajo, isquios estirados." },
-      { name: "Bulgarian Split Squat", sets: 3, reps: "8 c/pierna", notes: "Pie trasero elevado. Control motor, sin colapso de rodilla." },
-      { name: "Pull-ups o jalón", sets: 3, reps: "8", notes: "Si dominadas con peso corporal: 3 x al fallo -2. Si no: jalón al pecho." },
+      { name: "Reverse Lunge", sets: 3, reps: "10 c/pierna", notes: "Paso atrás controlado, rodilla no golpea el piso." },
       { name: "Farmer Carry", sets: 4, reps: "30m", notes: "Pesado pero estable. Postura, agarre, core." },
-      { name: "Hanging Leg Raises o Dead Bug", sets: 3, reps: "10", notes: "Core anti-extensión." }
-    ],
-    ohp: [
-      { name: "Dominadas (con o sin peso)", sets: 5, reps: "al fallo -1", notes: "Si peso corporal es fácil, agregás peso. Volumen total de tirones verticales." },
-      { name: "Press con mancuernas sentado", sets: 3, reps: "10", notes: "Apoyo de respaldo. Suma volumen de hombro." },
-      { name: "Elevaciones laterales", sets: 3, reps: "15", notes: "Hombro lateral, peso ligero, control." },
-      { name: "Curl bíceps barra", sets: 3, reps: "10", notes: "Para los brazos. Y porque se siente bien." },
-      { name: "Plancha frontal", sets: 3, reps: "45-60s", notes: "Core estático, cierre." }
+      { name: "Copenhagen Plank", sets: 3, reps: "20s c/lado", notes: "Aductor. Apoyo en banco, cadera alineada." },
+      { name: "Dead Bug", sets: 3, reps: "10 c/lado", notes: "Core anti-extensión." }
     ]
   },
 
@@ -644,8 +642,7 @@ function renderTopbarTag() {
 const LIFT_ICONS = {
   squat: `<svg viewBox="0 0 40 40" width="30" height="30" fill="currentColor"><rect x="4" y="16" width="6" height="10" rx="1"/><rect x="30" y="16" width="6" height="10" rx="1"/><rect x="8" y="19" width="24" height="4"/><path d="M14 30 L20 36 L26 30 Z"/></svg>`,
   bench: `<svg viewBox="0 0 40 40" width="30" height="30" fill="currentColor"><rect x="4" y="12" width="6" height="8" rx="1"/><rect x="30" y="12" width="6" height="8" rx="1"/><rect x="8" y="14" width="24" height="4"/><rect x="10" y="28" width="20" height="6" rx="1"/></svg>`,
-  deadlift: `<svg viewBox="0 0 40 40" width="30" height="30" fill="currentColor"><rect x="4" y="26" width="6" height="8" rx="1"/><rect x="30" y="26" width="6" height="8" rx="1"/><rect x="8" y="28" width="24" height="4"/><rect x="6" y="36" width="28" height="2"/></svg>`,
-  ohp: `<svg viewBox="0 0 40 40" width="30" height="30" fill="currentColor"><rect x="4" y="16" width="6" height="8" rx="1"/><rect x="30" y="16" width="6" height="8" rx="1"/><rect x="8" y="18" width="24" height="4"/><path d="M14 10 L20 4 L26 10 Z"/></svg>`
+  deadlift: `<svg viewBox="0 0 40 40" width="30" height="30" fill="currentColor"><rect x="4" y="26" width="6" height="8" rx="1"/><rect x="30" y="26" width="6" height="8" rx="1"/><rect x="8" y="28" width="24" height="4"/><rect x="6" y="36" width="28" height="2"/></svg>`
 };
 
 function renderInicio() {
