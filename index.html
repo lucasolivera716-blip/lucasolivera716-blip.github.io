@@ -2,217 +2,305 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f7f5">
 <title>5/3/1</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon.svg">
 <style>
+/* Planilla de entrenamiento: fondo claro para luz de gimnasio, tinta oscura,
+   azul de birome para lo ya registrado, rojo para lo que sigue. El naranja
+   queda reservado al descanso. */
 :root{
-  --bg:#0a0a0a; --bg-elevated:#161614; --bg-card:#1c1c19;
-  --accent:#ff5a1f;
-  --deload:#2fb8c6; --deload-dim:#123a3e;
-  --text:#f5f5f0; --text-dim:#8a8a85; --border:#2c2c28;
-  --done:#3ddc84; --done-dim:#173325; --danger:#ff3b30;
+  --bg:#f6f7f5; --surface:#ffffff; --head:#eceeeb;
+  --ink:#16191c; --ink-2:#39424a; --dim:#5a636a; --line:#c9cfd3;
+  --tint:#e2ebf8; --pen:#1f4fa3; --mark:#b3261e; --good:#006300;
+  --rest:#ff5a1f; --rest-ink:#1a0800; --rest-dim:#5c1f05;
+  --deload:#0b6470; --deload-bg:#dcf0f2;
+  --c1:#2a78d6; --c2:#eb6834; --c3:#1baf7a; --grid:#dfe3e5;
+  --nav-h:56px;
+  color-scheme:light;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{-webkit-text-size-adjust:100%;}
 html,body{margin:0;padding:0;overflow-x:hidden;}
 body{
-  background:var(--bg); color:var(--text);
+  background:var(--bg); color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:1rem; line-height:1.4;
   min-height:100vh; min-height:100dvh;
-  padding-bottom:76px;
+  padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px);
 }
-h1,h2,h3{margin:0; letter-spacing:-0.01em;}
-button{font-family:inherit;}
+body.rest-bar-on{ padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 76px); }
+::selection{background:var(--tint);color:var(--ink);}
+:focus-visible{outline:2px solid var(--pen);outline-offset:2px;}
+h1,h2,h3,p{margin:0;}
+button{font-family:inherit;color:inherit;}
 .hidden{display:none !important;}
-.wrap{max-width:560px;margin:0 auto;padding:16px 16px 8px;}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 8px;display:flex;flex-direction:column;gap:14px;}
+.stack{display:flex;flex-direction:column;gap:14px;}
+.stack:empty,#sesion-cta:empty{display:none;}
+.ck{display:inline-block;width:7px;height:13px;border:solid currentColor;border-width:0 2.5px 2.5px 0;transform:rotate(42deg) translate(-1px,-2px);}
+
 .topbar{
   display:flex;align-items:center;justify-content:space-between;
-  padding:14px 16px;border-bottom:1px solid var(--border);
-  position:sticky;top:0;background:var(--bg);z-index:5;
+  padding:12px 16px;border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:var(--bg);z-index:5;min-height:52px;
 }
-.topbar .brand{font-weight:800;font-size:1.1rem;letter-spacing:-0.02em;}
-.topbar .brand .accent{color:var(--accent);}
+.topbar .brand{font-weight:800;font-size:1.125rem;letter-spacing:-0.02em;}
 .pill{
-  font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:99px;
-  text-transform:uppercase;letter-spacing:.04em;
+  font-size:.8125rem;font-weight:700;padding:3px 10px;border-radius:99px;
+  border:1px solid var(--line);color:var(--dim);
 }
-.pill-deload{background:var(--deload-dim);color:var(--deload);}
-.pill-optional{background:var(--bg-card);color:var(--text-dim);border:1px solid var(--border);}
-.card{
-  background:var(--bg-card); border:1px solid var(--border); border-radius:14px;
-  padding:18px; margin-bottom:14px;
-}
+.pill-deload{background:var(--deload-bg);color:var(--deload);border-color:transparent;}
+
+.title{font-size:1.375rem;font-weight:800;letter-spacing:-0.015em;line-height:1.15;}
+.sub{color:var(--dim);font-weight:600;font-size:.9375rem;}
+.sub .deload{color:var(--deload);}
+.h{font-size:.9375rem;font-weight:800;margin-top:6px;}
+.h small{font-weight:600;color:var(--dim);font-size:.8125rem;margin-left:6px;}
+.muted{color:var(--dim);}
+.caption{font-size:.875rem;color:var(--dim);max-width:60ch;}
+
+/* Botones */
 .btn{
-  display:block; width:100%; text-align:center; border:none; border-radius:12px;
-  padding:18px 16px; font-size:1.05rem; font-weight:700; color:var(--text);
-  background:var(--bg-elevated); border:1px solid var(--border); cursor:pointer;
-  min-height:56px;
+  display:block;width:100%;text-align:center;border-radius:12px;
+  padding:14px 16px;font-size:1rem;font-weight:800;min-height:52px;cursor:pointer;
+  background:var(--surface);border:1.5px solid var(--ink);color:var(--ink);
 }
-.btn:active{transform:scale(0.98);}
-.btn-primary{background:var(--accent); color:#140700; border-color:var(--accent);}
-.btn-ghost{background:transparent;}
-.btn-danger{color:var(--danger); border-color:var(--danger);}
-.btn-sm{padding:10px 14px; font-size:.85rem; min-height:40px; width:auto;}
-.row{display:flex; gap:10px;}
-.row > *{flex:1;}
-.muted{color:var(--text-dim);}
-.section-title{font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim); font-weight:700; margin:22px 0 10px;}
-
-/* Inicio */
-.inicio-status{ text-align:center; padding:20px 4px 6px; }
-.inicio-week{ font-size:1.05rem; color:var(--text-dim); font-weight:600; }
-.inicio-day{ font-size:2rem; font-weight:800; margin:6px 0 2px; letter-spacing:-0.02em; }
-.deload-banner{
-  background:var(--deload-dim); border:1px solid var(--deload); color:var(--deload);
-  border-radius:12px; padding:14px; text-align:center; font-weight:700; margin-bottom:16px;
+.btn:active{transform:scale(.985);}
+.btn-primary{background:var(--ink);color:var(--bg);}
+.btn-quiet{border-color:var(--line);font-weight:700;}
+.back{
+  align-self:flex-start;background:none;border:0;padding:8px 12px 8px 0;min-height:44px;
+  font-weight:700;color:var(--dim);font-size:.9375rem;cursor:pointer;
 }
-/* Selector de semana + progreso */
-.week-nav{ display:flex; align-items:center; justify-content:center; gap:18px; padding:10px 0 4px; }
-.week-nav button{
-  background:var(--bg-card); border:1px solid var(--border); color:var(--text);
-  width:44px; height:44px; border-radius:12px; font-size:1.3rem; font-weight:700; cursor:pointer;
-}
-.week-nav button:disabled{ opacity:.3; }
-.week-nav .week-nav-label{ text-align:center; min-width:170px; }
-.week-nav .week-nav-n{ font-size:1.3rem; font-weight:800; }
-.week-nav .week-nav-scheme{ font-size:.85rem; color:var(--text-dim); font-weight:600; }
-.progress-dots{ display:flex; justify-content:center; gap:10px; margin:14px 0 20px; }
-.progress-dots .dot{
-  width:34px; height:8px; border-radius:99px; background:var(--bg-card); border:1px solid var(--border);
-}
-.progress-dots .dot.current{ border-color:var(--accent); }
-.progress-dots .dot.done{ background:var(--done); border-color:var(--done); }
-.progress-dots .dot.deload.done{ background:var(--deload); border-color:var(--deload); }
-
-/* Tiles cuadrados de elección de día / grupo muscular */
-.lift-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:6px; }
-.lift-tile{
-  position:relative; aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:6px; background:var(--bg-card); border:1px solid var(--border); border-radius:16px;
-  color:var(--accent); cursor:pointer; padding:10px; text-align:center;
-}
-.lift-tile:active{ transform:scale(0.97); }
-.lift-tile.done{ color:var(--done); border-color:var(--done); }
-.lift-tile-icon{ line-height:0; }
-.lift-tile-name{ color:var(--text); font-size:.95rem; font-weight:800; }
-.lift-tile-meta{ color:var(--text-dim); font-size:.75rem; font-weight:600; }
-.lift-tile-check{ position:absolute; top:8px; right:10px; font-size:1.1rem; font-weight:800; color:var(--done); }
-.io-caption{ font-size:.8rem; color:var(--text-dim); margin-top:8px; line-height:1.4; }
-
-/* Sesion sets */
-.set-card{
-  background:var(--bg-card); border:1px solid var(--border); border-radius:16px;
-  padding:16px; margin-bottom:12px; position:relative;
-}
-.set-card.done{ opacity:.55; border-color:var(--done); }
-.set-card .set-label{ font-size:.78rem; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
-.set-weight{
-  font-size:clamp(3rem,15vw,4.4rem); font-weight:800; line-height:1; letter-spacing:-0.03em;
-  margin:6px 0 2px;
-}
-.set-weight .unit{ font-size:1.3rem; font-weight:700; color:var(--text-dim); margin-left:6px; }
-.set-reps{ font-size:1.1rem; color:var(--text-dim); font-weight:600; margin-bottom:8px; }
-.set-plates{ font-size:1rem; margin-bottom:12px; }
-.set-plates .lbl{ color:var(--text-dim); font-size:.8rem; display:block; margin-bottom:2px;}
-.set-plates .val{ font-weight:700; }
-.set-plates .val.error{ color:var(--danger); }
-.check-btn{
-  width:100%; padding:16px; border-radius:12px; border:2px solid var(--border);
-  background:var(--bg-elevated); color:var(--text); font-weight:800; font-size:1rem;
-  cursor:pointer; min-height:56px;
-}
-.check-btn.checked{ background:var(--done-dim); border-color:var(--done); color:var(--done); }
-.amrap-inputs{ display:flex; gap:10px; margin-top:10px; }
-.amrap-inputs label{ flex:1; display:flex; flex-direction:column; font-size:.75rem; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:.04em; gap:6px;}
-.amrap-inputs input{
-  background:var(--bg-elevated); border:1px solid var(--border); color:var(--text);
-  border-radius:10px; padding:12px; font-size:1.1rem; font-weight:700; width:100%;
-}
-.timer-clock{
-  background:var(--bg-elevated); border:1px solid var(--border); color:var(--text-dim);
-  border-radius:10px; padding:8px 12px; font-size:.85rem; font-weight:700; cursor:pointer;
+.back::before{
+  content:"";display:inline-block;width:8px;height:8px;border:solid currentColor;
+  border-width:0 0 2px 2px;transform:rotate(45deg);margin-right:8px;position:relative;top:-1px;
 }
 
-/* Rest timer bar */
+/* Campos */
+input[type="text"],input[type="number"],textarea{
+  background:var(--surface);border:1.5px solid var(--line);color:var(--ink);
+  border-radius:10px;padding:10px 12px;font-size:1rem;font-family:inherit;font-weight:700;
+  caret-color:var(--pen);
+}
+input[type="text"]:focus,input[type="number"]:focus,textarea:focus{border-color:var(--ink);}
+input::placeholder,textarea::placeholder{color:var(--dim);font-weight:500;}
+input[type="checkbox"]{accent-color:var(--ink);}
+textarea.note{width:100%;min-height:76px;font-weight:500;resize:vertical;}
+.field-error{color:var(--mark);font-weight:700;font-size:.9375rem;}
+
+/* Bloque: la planilla */
+.grid{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums;}
+.grid col.c0{width:27%;}
+.grid th,.grid td{border:1px solid var(--line);padding:0;text-align:center;}
+.grid thead th,.grid tbody th{background:var(--head);}
+.grid tbody th{text-align:left;padding:6px 8px;font-size:.8125rem;font-weight:700;line-height:1.2;}
+.grid button{
+  display:block;width:100%;min-height:54px;padding:6px 2px;background:none;border:0;
+  font-size:.9375rem;font-weight:700;cursor:pointer;font-variant-numeric:tabular-nums;line-height:1.25;
+}
+.grid button:active{background:rgba(22,25,28,.07);}
+.grid thead button{min-height:46px;font-size:.875rem;color:var(--dim);}
+.grid thead small{display:block;font-size:.75rem;font-weight:600;}
+.grid .cur{background:var(--tint);}
+.grid thead .cur button{color:var(--ink);}
+.grid em{display:block;font-style:normal;font-size:.8125rem;font-weight:700;color:var(--pen);min-height:1.25em;}
+.grid em.pend{color:var(--mark);}
+.grid .next{box-shadow:inset 0 0 0 2px var(--mark);}
+.grid .dl button{color:var(--dim);font-weight:600;}
+
+.kv{list-style:none;margin:0;padding:0;font-variant-numeric:tabular-nums;}
+.kv li{
+  display:grid;grid-template-columns:1fr auto 3.75rem;gap:10px;align-items:baseline;
+  padding:9px 0;border-top:1px solid var(--line);font-weight:700;
+}
+.kv li span:nth-child(n+2){text-align:right;}
+.kv .up{color:var(--good);font-size:.875rem;}
+.kv .down{color:var(--mark);font-size:.875rem;}
+.kv .flat{color:var(--dim);font-weight:600;font-size:.875rem;}
+
+.links{list-style:none;margin:0;padding:0;}
+.links li{border-top:1px solid var(--line);}
+.links button{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;min-height:48px;
+  background:none;border:0;padding:8px 0;font-size:1rem;font-weight:700;text-align:left;cursor:pointer;
+}
+.links button span{color:var(--dim);font-weight:600;font-size:.875rem;text-align:right;}
+
+/* Sesión */
+.now{background:var(--tint);border-radius:14px;padding:14px 16px;}
+.now-big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.now-big strong{font-size:4.5rem;line-height:.95;font-weight:800;letter-spacing:-0.035em;font-variant-numeric:tabular-nums;}
+.now-big span{font-size:1.125rem;font-weight:700;}
+.now-plates{font-weight:600;color:var(--ink-2);margin-top:4px;}
+.now-plates.error{color:var(--mark);}
+.now-done{font-size:1.125rem;font-weight:800;}
+.goal{font-weight:600;}
+.goal b{color:var(--mark);}
+.stepper,.rpe{display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:700;}
+.rpe small{font-weight:600;color:var(--dim);margin-left:4px;}
+.rpe input{width:5.5rem;text-align:center;}
+.stepper-ctl{display:flex;align-items:center;gap:6px;}
+.stepper-ctl output{min-width:2.75rem;text-align:center;font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums;}
+.stepper-ctl button{
+  width:52px;height:52px;border-radius:12px;background:var(--surface);border:1.5px solid var(--ink);
+  font-size:1.5rem;font-weight:700;cursor:pointer;line-height:1;
+}
+.stepper-ctl button:active{background:var(--head);}
+.sets{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;}
+.sets th{font-size:.8125rem;color:var(--dim);text-align:left;padding:0 6px 6px;font-weight:700;}
+.sets td{border-top:1px solid var(--line);padding:0 6px;height:48px;font-weight:700;}
+.sets td:nth-child(4){font-weight:600;font-size:.875rem;color:var(--dim);}
+.sets td:last-child{width:48px;text-align:center;padding:0;}
+.sets .ok td{color:var(--pen);}
+.sets .ok td:nth-child(4){color:var(--dim);}
+.sets .cur td{background:var(--tint);}
+.sets .cur td:nth-child(4){color:var(--ink-2);}
+.undo{width:46px;height:46px;background:none;border:0;color:var(--pen);cursor:pointer;}
+
+/* Descanso: el único lugar donde manda el naranja */
+.rest{
+  background:var(--rest);color:var(--rest-ink);border-radius:16px;padding:14px 16px 16px;
+  position:sticky;top:60px;z-index:4;
+}
+.rest-lbl{font-weight:700;font-size:.9375rem;color:var(--rest-dim);}
+.rest-time{font-size:6rem;line-height:.9;font-weight:800;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;}
+.rest-next{font-size:1.125rem;font-weight:800;margin-top:6px;}
+.rest-sub{font-weight:600;color:var(--rest-dim);}
+.rest-actions{display:flex;gap:10px;margin-top:12px;}
+.rest-actions button,.rest-bar-skip{
+  flex:1;min-height:52px;border:0;border-radius:12px;background:rgba(26,8,0,.14);
+  color:var(--rest-ink);font-weight:800;font-size:1rem;cursor:pointer;
+}
+.rest-actions button:active,.rest-bar-skip:active{background:rgba(26,8,0,.24);}
+.rest :focus-visible,.rest-bar :focus-visible{outline-color:var(--rest-ink);}
 .rest-bar{
-  position:fixed; left:0; right:0; bottom:76px; z-index:20;
-  background:var(--accent); color:#140700; padding:14px 18px;
-  display:flex; align-items:center; justify-content:space-between;
-  font-weight:800; font-size:1.3rem;
+  position:fixed;left:0;right:0;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));z-index:20;
+  background:var(--rest);color:var(--rest-ink);display:flex;align-items:center;gap:10px;padding:8px 16px;
 }
-.rest-bar .rest-skip{ background:rgba(0,0,0,.2); border:none; color:#140700; font-weight:800; padding:8px 14px; border-radius:8px; font-size:.9rem; cursor:pointer; }
-body.rest-active{ padding-bottom:150px; }
+.rest-bar-main{
+  flex:1;display:flex;align-items:baseline;gap:10px;background:none;border:0;padding:0;min-height:44px;
+  font-weight:800;font-size:1rem;cursor:pointer;text-align:left;
+}
+.rest-bar-main .t{font-size:1.625rem;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;}
+.rest-bar-skip{flex:none;min-height:44px;padding:0 16px;}
 
-/* Assistance */
-details.assist{ border:1px solid var(--border); border-radius:12px; padding:2px 14px; margin-top:6px; }
-details.assist summary{ padding:12px 0; font-weight:700; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center;}
+/* Asistencia */
+details.assist{border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+details.assist summary{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:52px;
+  font-weight:800;cursor:pointer;list-style:none;
+}
 details.assist summary::-webkit-details-marker{display:none;}
-details.assist summary::after{ content:"+"; font-size:1.4rem; color:var(--text-dim); }
-details.assist[open] summary::after{ content:"–"; }
-.assist-item{ padding:12px 0; border-top:1px solid var(--border); }
-.assist-item .a-head{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
-.assist-item .a-name{ font-weight:700; }
-.assist-item .a-sets{ color:var(--accent); font-weight:700; white-space:nowrap; }
-.assist-item .a-notes{ color:var(--text-dim); font-size:.88rem; margin-top:4px; }
-.assist-item .a-timer{ margin-top:8px; }
-
-textarea.note{
-  width:100%; background:var(--bg-card); border:1px solid var(--border); color:var(--text);
-  border-radius:12px; padding:12px; font-size:1rem; min-height:70px; font-family:inherit; resize:vertical;
+details.assist summary span{color:var(--dim);font-weight:600;font-size:.875rem;margin-left:auto;}
+details.assist summary::after{
+  content:"";width:8px;height:8px;border:solid var(--dim);border-width:0 2px 2px 0;
+  transform:rotate(45deg);margin:0 4px 4px 0;
 }
+details.assist[open] summary::after{transform:rotate(-135deg);margin:4px 4px 0 0;}
+.assist-list{list-style:none;margin:0;padding:0;}
+.assist-item{padding:12px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px;}
+.a-head{display:flex;align-items:center;gap:10px;min-height:32px;cursor:pointer;}
+.a-head input{width:22px;height:22px;flex:none;margin:0;}
+.a-name{font-weight:700;flex:1;}
+.a-sets{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.a-notes{color:var(--dim);font-size:.875rem;}
+.a-row{display:flex;align-items:center;gap:10px;}
+.a-row label{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.875rem;color:var(--dim);}
+.a-row input{width:7rem;padding:8px 10px;}
+.chip-btn{
+  margin-left:auto;min-height:44px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--line);
+  background:var(--surface);font-weight:700;font-size:.875rem;cursor:pointer;
+}
+
+/* Análisis */
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.875rem;font-weight:600;color:var(--dim);}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--c);}
+.s1{--c:var(--c1);} .s2{--c:var(--c2);} .s3{--c:var(--c3);}
+.chart svg{display:block;width:100%;height:auto;overflow:visible;}
+.chart .g{stroke:var(--grid);stroke-width:1;}
+.chart .t{fill:var(--dim);font-size:10px;}
+.chart .lab{fill:var(--ink);font-size:10px;font-weight:700;}
+.chart .ln{fill:none;stroke:var(--c);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;}
+.chart .pt{fill:var(--c);stroke:var(--bg);stroke-width:2;}
+.chart .hit{fill:transparent;cursor:pointer;}
+.chart .hit:focus-visible{outline:none;stroke:var(--ink);stroke-width:1.5;}
+.readout{font-size:.875rem;color:var(--dim);font-weight:600;min-height:2.8em;}
+.ton{
+  display:grid;grid-template-columns:2.25rem 1fr auto;gap:8px 10px;align-items:center;
+  font-size:.875rem;font-weight:700;font-variant-numeric:tabular-nums;
+}
+.ton .lbl{color:var(--dim);}
+.ton .b{height:12px;border-radius:0 4px 4px 0;background:var(--dim);min-width:2px;}
+.ton .b.part{
+  background:repeating-linear-gradient(135deg,var(--dim) 0 3px,transparent 3px 6px);
+  outline:1px solid var(--dim);outline-offset:-1px;
+}
+.ton .b.zero{background:var(--line);}
+.ton em{font-style:normal;font-weight:600;color:var(--dim);}
+.reps{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;}
+.reps th,.reps td{padding:9px 4px;text-align:right;border-top:1px solid var(--line);font-weight:700;}
+.reps thead th{border-top:0;color:var(--dim);font-weight:600;font-size:.875rem;padding-top:0;}
+.reps th:first-child{text-align:left;}
+.reps td small{font-size:.8125rem;font-weight:700;margin-left:4px;color:var(--good);}
+.reps td small.down{color:var(--mark);}
+.reps .na{color:var(--dim);font-weight:600;}
 
 /* Historial */
-.tabbar{ display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:16px; }
-.tab{ flex:0 0 auto; padding:10px 16px; border-radius:99px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-dim); font-weight:700; cursor:pointer; }
-.tab.active{ background:var(--accent); color:#140700; border-color:var(--accent); }
-.hist-row{ border-bottom:1px solid var(--border); padding:14px 0; }
-.hist-row:last-child{ border-bottom:none; }
-.hist-top{ display:flex; justify-content:space-between; font-weight:700; }
-.hist-week{ color:var(--text-dim); font-weight:600; font-size:.85rem; }
-.hist-sets{ margin-top:6px; font-size:.95rem; }
-.hist-amrap{ color:var(--accent); font-weight:700; }
-.hist-note{ margin-top:6px; font-size:.88rem; color:var(--text-dim); font-style:italic; }
-.empty{ text-align:center; color:var(--text-dim); padding:40px 10px; }
-
-/* Cierre de ciclo — lista compacta */
-.cierre-row{ border-bottom:1px solid var(--border); padding:14px 0; }
-.cierre-row:last-child{ border-bottom:none; }
-.cierre-row-top{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
-.cierre-name{ font-size:1.05rem; font-weight:800; }
-.cierre-badge{ font-size:.72rem; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; }
-.cierre-sugerencias{ margin-top:6px; font-size:.92rem; color:var(--text); }
-.cierre-sugerencias b{ color:var(--text); }
-
-/* Nuevo bloque */
-.tm-input-row{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
-.tm-input-label{ font-size:.85rem; font-weight:700; }
-.tm-input-row input{
-  background:var(--bg-card); border:1px solid var(--border); color:var(--text);
-  border-radius:10px; padding:14px; font-size:1.3rem; font-weight:800; width:100%;
+.tabbar{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);}
+.tab{
+  flex:1;min-height:44px;padding:8px 6px;border:0;border-right:1px solid var(--line);background:none;
+  color:var(--dim);font-weight:700;font-size:.875rem;cursor:pointer;
 }
-.tm-input-hint{ font-size:.78rem; color:var(--text-dim); }
+.tab:last-child{border-right:0;}
+.tab.active{background:var(--ink);color:var(--bg);}
+.hist-row{border-top:1px solid var(--line);padding:12px 0;display:flex;flex-direction:column;gap:4px;}
+.hist-top{display:flex;justify-content:space-between;gap:10px;font-weight:700;}
+.hist-week{color:var(--dim);font-weight:600;font-size:.875rem;text-align:right;}
+.hist-sets{font-variant-numeric:tabular-nums;}
+.hist-amrap{color:var(--pen);font-weight:800;}
+.hist-meta{font-size:.875rem;color:var(--dim);font-weight:600;}
+.hist-meta b{color:var(--mark);}
+.hist-note{font-size:.9375rem;color:var(--dim);}
+.empty{color:var(--dim);padding:20px 0;max-width:38ch;}
 
-/* Bottom nav */
+/* Cierre de ciclo */
+.cierre-row{border-top:1px solid var(--line);padding:12px 0;display:flex;flex-direction:column;gap:4px;}
+.cierre-row-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+.cierre-name{font-size:1.0625rem;font-weight:800;}
+.cierre-badge{font-size:.875rem;font-weight:700;color:var(--mark);white-space:nowrap;}
+.cierre-sugerencias{font-variant-numeric:tabular-nums;}
+
+/* TM */
+.tm-input-row{display:flex;flex-direction:column;gap:6px;}
+.tm-input-label{font-size:.9375rem;font-weight:700;}
+.tm-input-row input{font-size:1.25rem;font-weight:800;width:100%;padding:12px 14px;}
+.tm-input-hint{font-size:.875rem;color:var(--dim);}
+
+/* Navegación inferior */
 .bottomnav{
-  position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--bg-elevated);
-  border-top:1px solid var(--border); z-index:15; padding-bottom:env(safe-area-inset-bottom);
+  position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--bg);
+  border-top:1px solid var(--line);z-index:15;padding-bottom:env(safe-area-inset-bottom);
 }
 .bottomnav button{
-  flex:1; background:none; border:none; color:var(--text-dim); font-weight:700; font-size:.8rem;
-  padding:14px 4px; cursor:pointer;
+  flex:1;height:var(--nav-h);background:none;border:0;color:var(--dim);
+  font-weight:700;font-size:.875rem;cursor:pointer;
 }
-.bottomnav button.active{ color:var(--accent); }
+.bottomnav button.active{color:var(--ink);box-shadow:inset 0 2px 0 var(--ink);}
 
 .fatal{
-  position:fixed; inset:0; background:#2a0500; color:#fff; padding:24px; z-index:999;
-  font-family:monospace; font-size:.95rem; overflow:auto; white-space:pre-wrap;
+  position:fixed;inset:0;background:#2a0500;color:#fff;padding:24px;z-index:999;
+  font-family:monospace;font-size:.95rem;overflow:auto;white-space:pre-wrap;
 }
 
-.io-row{ display:flex; gap:10px; margin-top:18px; }
-.io-row button{ font-size:.85rem; }
+@media (prefers-reduced-motion: no-preference){
+  .btn,.tab,.bottomnav button,.stepper-ctl button{transition:background-color .16s ease-out,color .16s ease-out,transform .12s ease-out;}
+}
 </style>
 </head>
 <body>
@@ -220,15 +308,18 @@ textarea.note{
 <div id="fatal" class="fatal hidden"></div>
 
 <div class="topbar">
-  <div class="brand">5<span class="accent">/</span>3<span class="accent">/</span>1</div>
-  <div id="topbar-tag" class="pill pill-optional">Semana –/8</div>
+  <div class="brand">5/3/1</div>
+  <div id="topbar-tag" class="pill">Semana –</div>
 </div>
 
-<!-- INICIO -->
+<!-- BLOQUE (inicio) -->
 <div id="screen-inicio" class="screen wrap"></div>
 
 <!-- SESION -->
 <div id="screen-sesion" class="screen wrap hidden"></div>
+
+<!-- ANALISIS -->
+<div id="screen-analisis" class="screen wrap hidden"></div>
 
 <!-- HISTORIAL -->
 <div id="screen-historial" class="screen wrap hidden"></div>
@@ -236,14 +327,15 @@ textarea.note{
 <!-- CIERRE -->
 <div id="screen-cierre" class="screen wrap hidden"></div>
 
-<!-- NUEVO BLOQUE -->
+<!-- EDITAR TM / NUEVO BLOQUE -->
 <div id="screen-bloque" class="screen wrap hidden"></div>
 
 <div id="rest-bar-slot"></div>
 
 <nav class="bottomnav">
-  <button id="nav-inicio" data-screen="inicio">Inicio</button>
-  <button id="nav-historial" data-screen="historial">Historial</button>
+  <button type="button" id="nav-inicio">Bloque</button>
+  <button type="button" id="nav-analisis">Análisis</button>
+  <button type="button" id="nav-historial">Historial</button>
 </nav>
 
 <script>
@@ -337,6 +429,26 @@ const CONFIG = {
 };
 
 /* =========================================================================
+   UTILIDADES
+   ========================================================================= */
+function $(id) { return document.getElementById(id); }
+
+// Todo texto que escribe el usuario (notas) o que llega de un JSON importado
+// pasa por acá antes de entrar a innerHTML.
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function fmt1(n) { return (Math.round(n * 10) / 10).toFixed(1); }
+
+// Número ingresado a mano: acepta coma decimal. null si está vacío o no es número.
+function parseNum(texto) {
+  if (texto == null || String(texto).trim() === "") return null;
+  const val = Number(String(texto).replace(",", "."));
+  return Number.isFinite(val) ? val : null;
+}
+
+/* =========================================================================
    REDONDEO — empate al par (banker's rounding), múltiplos de 2.5 kg.
    ========================================================================= */
 function redondear(peso) {
@@ -378,15 +490,38 @@ function calcularDiscos(pesoTotal) {
   return { ok: true, plates };
 }
 
+// Texto de discos por lado, sin unidad: "25 + 25 + 5". porLado:false cuando
+// el texto no es una lista de discos (solo barra, o no se puede armar).
 function formatDiscos(pesoTotal) {
   const r = calcularDiscos(pesoTotal);
   if (!r.ok) {
-    return { text: r.reason === "menor_a_barra" ? "Peso menor a la barra" : "No armable con los discos configurados", error: true };
+    return { text: r.reason === "menor_a_barra" ? "Peso menor a la barra" : "No se arma con tus discos", error: true, porLado: false };
   }
-  if (r.plates.length === 0) return { text: "Solo barra", error: false };
+  if (r.plates.length === 0) return { text: "Solo barra", error: false, porLado: false };
   const parts = [];
   r.plates.forEach(p => { for (let i = 0; i < p.count; i++) parts.push(p.plate); });
-  return { text: parts.join(" + ") + " kg", error: false };
+  return { text: parts.join(" + "), error: false, porLado: true };
+}
+
+/* =========================================================================
+   MÉTRICAS — e1RM (misma fórmula que el cierre de ciclo) y tonelaje.
+   ========================================================================= */
+function e1rm(peso, reps) { return (peso * reps * 0.0333) + peso; }
+
+// Serie AMRAP de una sesión guardada, solo si tiene al menos 1 rep anotada.
+function amrapDe(rec) {
+  const s = rec.sets.find(x => x.isAmrap);
+  return (s && s.actualReps != null && s.actualReps >= 1) ? s : null;
+}
+
+// Kilos movidos en las series principales de una sesión guardada.
+function tonelaje(rec) {
+  return rec.sets.reduce((acc, s) => {
+    const hecha = s.done || (s.isAmrap && s.actualReps != null);
+    if (!hecha) return acc;
+    const reps = (s.isAmrap && s.actualReps != null) ? s.actualReps : s.reps;
+    return acc + s.weight * reps;
+  }, 0);
 }
 
 /* =========================================================================
@@ -420,14 +555,20 @@ function runSelfTests() {
     });
   });
 
+  // Cierre de ciclo: cualquier cantidad de reps tiene que caer en una regla.
+  [[0, "TM al límite"], [1, "TM al límite"], [2, "TM correcto"], [3.5, "TM correcto"], [6, "TM bajo"], [12, "TM muy bajo"]].forEach(([reps, esperado]) => {
+    const regla = reglaPara(reps);
+    if (!regla || regla.lectura !== esperado) fails.push(`regla de cierre: ${reps} reps → ${regla ? regla.lectura : "sin regla"}, esperado ${esperado}`);
+  });
+
   if (fails.length) {
-    const el = document.getElementById("fatal");
+    const el = $("fatal");
     el.textContent = "AUTOTEST FALLÓ — la app no es confiable hasta corregir esto:\n\n" + fails.join("\n");
     el.classList.remove("hidden");
     console.error("AUTOTEST FALLÓ", fails);
     throw new Error("Autotest de redondeo falló: " + fails.length + " casos.");
   } else {
-    console.log("Autotest OK: 6 casos de empate + 48 celdas del PDF verificadas.");
+    console.log("Autotest OK: 6 casos de empate + 48 celdas del PDF + 6 reglas de cierre verificadas.");
   }
 }
 
@@ -489,6 +630,9 @@ function ensureBlocks(s) {
   if (!s.blocks.some(b => b.id === s.currentBlockId)) {
     s.currentBlockId = s.blocks[s.blocks.length - 1].id;
   }
+  if (!(s.weekIndex >= 0 && s.weekIndex < s.blocks.find(b => b.id === s.currentBlockId).weeks.length)) {
+    s.weekIndex = 0;
+  }
 }
 
 let state = loadState();
@@ -497,10 +641,60 @@ saveState();
 
 function currentBlock() { return state.blocks.find(b => b.id === state.currentBlockId); }
 function getBlock(id) { return state.blocks.find(b => b.id === id); }
+function currentWeek() { return currentBlock().weeks[state.weekIndex]; }
 // El bloque semilla conserva el total histórico "de 8" (dos ciclos
 // encadenados del documento original); los bloques nuevos muestran su
 // propio largo ("de 4").
 function weekTotalLabel(block) { return block.legacyLabel ? 8 : block.weeks.length; }
+function blockTitle(block) {
+  const a = block.weeks[0].n, b = block.weeks[block.weeks.length - 1].n;
+  return block.legacyLabel ? `Bloque · semanas ${a} a ${b}` : `Bloque ${block.number} · semanas ${a} a ${b}`;
+}
+
+// El historial va de la sesión más nueva a la más vieja, así que find()
+// devuelve la última sesión guardada de ese levantamiento en esa semana.
+function recordFor(liftKey, weekIndex, blockId) {
+  return state.history.find(r => r.liftKey === liftKey && r.weekIndex === weekIndex && r.blockId === blockId) || null;
+}
+
+// Una sesión "hecha" es cualquier sesión finalizada de ese lift, esa semana,
+// dentro del bloque activo (no mezcla con bloques anteriores).
+function isLiftDoneInWeek(liftKey, weekIndex) {
+  return recordFor(liftKey, weekIndex, currentBlock().id) !== null;
+}
+
+// Semana completa = los 3 días fijos hechos (un día opcional no cuenta).
+function isWeekCoreDone(weekIndex) {
+  const block = currentBlock();
+  return CONFIG.dayOrder
+    .filter(k => !block.lifts[k].optional)
+    .every(k => isLiftDoneInWeek(k, weekIndex));
+}
+
+// e1RM de cada AMRAP guardado de un levantamiento, del más viejo al más nuevo.
+function e1rmSerie(liftKey) {
+  return state.history
+    .filter(r => r.liftKey === liftKey && amrapDe(r))
+    .map(r => { const s = amrapDe(r); return { v: e1rm(s.weight, s.actualReps), rec: r, set: s }; })
+    .reverse();
+}
+
+function mejorE1rm(liftKey) {
+  const serie = e1rmSerie(liftKey);
+  return serie.length ? Math.max(...serie.map(p => p.v)) : null;
+}
+
+// Cuántas reps hacen falta con este peso para superar el mejor e1RM guardado.
+// null si no hay marca previa o si queda fuera de alcance razonable.
+function repsParaRecord(liftKey, peso, repsMin) {
+  const mejor = mejorE1rm(liftKey);
+  if (mejor === null) return null;
+  for (let r = Math.max(1, repsMin); r <= 15; r++) {
+    const v = e1rm(peso, r);
+    if (v > mejor + 1e-9) return { reps: r, e1rm: v };
+  }
+  return null;
+}
 
 /* =========================================================================
    SESIÓN — construcción de series a partir del bloque activo
@@ -517,6 +711,10 @@ function buildSets(block, liftKey, weekIndex) {
   }));
 }
 
+function nuevoAssistDraft(liftKey) {
+  return (CONFIG.assistance[liftKey] || []).map(() => ({ done: false, kg: null }));
+}
+
 function ensureDraft(liftKey, weekIndex) {
   const block = currentBlock();
   if (state.draft && state.draft.blockId === block.id && state.draft.liftKey === liftKey && state.draft.weekIndex === weekIndex) {
@@ -525,17 +723,30 @@ function ensureDraft(liftKey, weekIndex) {
   const sets = buildSets(block, liftKey, weekIndex).map(s => ({
     setNumber: s.setNumber, done: false, actualReps: null, rpe: null
   }));
-  state.draft = { blockId: block.id, liftKey, weekIndex, sets, note: "" };
+  state.draft = { blockId: block.id, liftKey, weekIndex, sets, note: "", assist: nuevoAssistDraft(liftKey) };
   saveState();
   return state.draft;
 }
 
+// Último peso anotado para un ejercicio de asistencia en ese día.
+function ultimoKgAsistencia(liftKey, nombre) {
+  for (const r of state.history) {
+    if (r.liftKey !== liftKey || !Array.isArray(r.assist)) continue;
+    const a = r.assist.find(x => x.name === nombre && x.kg != null);
+    if (a) return a.kg;
+  }
+  return null;
+}
+
 /* =========================================================================
    TIMER DE DESCANSO
+   En la sesión ocupa el lugar de la serie activa (panel naranja). En
+   cualquier otra pantalla queda como barra fija sobre la navegación.
    ========================================================================= */
 let restEndAt = null;
 let restInterval = null;
 let audioCtx = null;
+let currentScreen = "inicio";
 
 function beep() {
   try {
@@ -554,271 +765,416 @@ function beep() {
   if (navigator.vibrate) navigator.vibrate([250, 100, 250, 100, 250]);
 }
 
+function restText() {
+  const totalSec = Math.max(0, Math.ceil((restEndAt - Date.now()) / 1000));
+  return `${Math.floor(totalSec / 60)}:${String(totalSec % 60).padStart(2, "0")}`;
+}
+
 function startRestTimer(seconds) {
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === "suspended") audioCtx.resume();
   } catch (e) {}
   restEndAt = Date.now() + seconds * 1000;
-  renderRestBar();
   if (restInterval) clearInterval(restInterval);
-  restInterval = setInterval(renderRestBar, 250);
+  restInterval = setInterval(tickRest, 250);
+  refreshRestUi();
 }
 
 function stopRestTimer() {
   restEndAt = null;
   if (restInterval) clearInterval(restInterval);
   restInterval = null;
-  document.getElementById("rest-bar-slot").innerHTML = "";
-  document.body.classList.remove("rest-active");
+  refreshRestUi();
 }
 
-function renderRestBar() {
-  const slot = document.getElementById("rest-bar-slot");
-  if (!restEndAt) { slot.innerHTML = ""; document.body.classList.remove("rest-active"); return; }
-  const remainingMs = restEndAt - Date.now();
-  if (remainingMs <= 0) {
-    slot.innerHTML = "";
+function addRest(seconds) {
+  if (restEndAt === null) return;
+  restEndAt += seconds * 1000;
+  tickRest();
+}
+
+// Solo cambia el texto del reloj: no se vuelve a dibujar nada mientras corre,
+// para no robarle el foco a una nota o un campo que se esté escribiendo.
+function tickRest() {
+  if (restEndAt === null) return;
+  if (restEndAt - Date.now() <= 0) {
     stopRestTimer();
     beep();
     return;
   }
-  // La barra es "fixed" y se suma al bottomnav: sin este padding extra tapa
-  // contenido y botones cerca del final de la pantalla (detectado probando
-  // en un viewport de celular real, no en el default de escritorio).
-  document.body.classList.add("rest-active");
-  const totalSec = Math.ceil(remainingMs / 1000);
-  const mm = String(Math.floor(totalSec / 60)).padStart(2, "0");
-  const ss = String(totalSec % 60).padStart(2, "0");
-  slot.innerHTML = `
-    <div class="rest-bar">
-      <span>Descanso — ${mm}:${ss}</span>
-      <button class="rest-skip" id="rest-skip-btn">Saltar</button>
-    </div>`;
-  document.getElementById("rest-skip-btn").onclick = stopRestTimer;
+  const t = restText();
+  document.querySelectorAll("[data-rest-time]").forEach(n => { if (n.textContent !== t) n.textContent = t; });
 }
+
+function refreshRestUi() {
+  renderRestBar();
+  if (currentScreen === "sesion" && state.draft && $("sesion-top")) renderSesionLive();
+}
+
+function renderRestBar() {
+  const slot = $("rest-bar-slot");
+  const show = restEndAt !== null && currentScreen !== "sesion";
+  document.body.classList.toggle("rest-bar-on", show);
+  if (!show) { slot.innerHTML = ""; return; }
+  slot.innerHTML = `
+    <div class="rest-bar" role="timer" aria-label="Descanso">
+      <button type="button" class="rest-bar-main" id="rest-bar-open">
+        <span>Descanso</span><span class="t" data-rest-time>${restText()}</span>
+      </button>
+      <button type="button" class="rest-bar-skip" id="rest-bar-skip">Saltar</button>
+    </div>`;
+  $("rest-bar-skip").onclick = stopRestTimer;
+  $("rest-bar-open").onclick = () => { if (state.draft) { renderSesion(); showScreen("sesion"); } };
+}
+
+// Si el teléfono durmió la pestaña, al volver se actualiza (o suena) de una.
+document.addEventListener("visibilitychange", () => { if (!document.hidden) tickRest(); });
 
 /* =========================================================================
    RENDER — router simple entre pantallas
    ========================================================================= */
+const SCREENS = ["inicio", "sesion", "analisis", "historial", "cierre", "bloque"];
+
 function showScreen(name) {
-  ["inicio", "sesion", "historial", "cierre", "bloque"].forEach(s => {
-    document.getElementById("screen-" + s).classList.toggle("hidden", s !== name);
-  });
-  document.getElementById("nav-inicio").classList.toggle("active", name === "inicio");
-  document.getElementById("nav-historial").classList.toggle("active", name === "historial");
+  currentScreen = name;
+  SCREENS.forEach(s => { $("screen-" + s).classList.toggle("hidden", s !== name); });
+  $("nav-inicio").classList.toggle("active", ["inicio", "sesion", "cierre", "bloque"].includes(name));
+  $("nav-analisis").classList.toggle("active", name === "analisis");
+  $("nav-historial").classList.toggle("active", name === "historial");
+  renderRestBar();
   window.scrollTo(0, 0);
 }
 
-function currentWeek() { return currentBlock().weeks[state.weekIndex]; }
-
-// Una sesión "hecha" es cualquier sesión finalizada de ese lift, esa semana,
-// dentro del bloque activo (no mezcla con bloques anteriores).
-function isLiftDoneInWeek(liftKey, weekIndex) {
-  const blockId = currentBlock().id;
-  return state.history.some(r => r.liftKey === liftKey && r.weekIndex === weekIndex && r.blockId === blockId);
-}
-
-// Semana completa = los 3 días fijos hechos (el día 4 es opcional, no cuenta).
-function isWeekCoreDone(weekIndex) {
-  const block = currentBlock();
-  return CONFIG.dayOrder
-    .filter(k => !block.lifts[k].optional)
-    .every(k => isLiftDoneInWeek(k, weekIndex));
-}
+function irABloque() { renderInicio(); showScreen("inicio"); }
 
 function renderTopbarTag() {
-  const tag = document.getElementById("topbar-tag");
+  const tag = $("topbar-tag");
   const block = currentBlock();
   const week = currentWeek();
   const prefix = block.legacyLabel ? "" : `Bloque ${block.number} · `;
   tag.textContent = `${prefix}Semana ${week.n}/${weekTotalLabel(block)}${week.deload ? " · Deload" : ""}`;
   tag.classList.toggle("pill-deload", week.deload);
-  tag.classList.toggle("pill-optional", !week.deload);
 }
 
-// Íconos mínimos por levantamiento — mismo motivo de barra que icon.svg,
-// con un rasgo distintivo por lift (sin librerías externas).
-const LIFT_ICONS = {
-  squat: `<svg viewBox="0 0 40 40" width="30" height="30" fill="currentColor"><rect x="4" y="16" width="6" height="10" rx="1"/><rect x="30" y="16" width="6" height="10" rx="1"/><rect x="8" y="19" width="24" height="4"/><path d="M14 30 L20 36 L26 30 Z"/></svg>`,
-  bench: `<svg viewBox="0 0 40 40" width="30" height="30" fill="currentColor"><rect x="4" y="12" width="6" height="8" rx="1"/><rect x="30" y="12" width="6" height="8" rx="1"/><rect x="8" y="14" width="24" height="4"/><rect x="10" y="28" width="20" height="6" rx="1"/></svg>`,
-  deadlift: `<svg viewBox="0 0 40 40" width="30" height="30" fill="currentColor"><rect x="4" y="26" width="6" height="8" rx="1"/><rect x="30" y="26" width="6" height="8" rx="1"/><rect x="8" y="28" width="24" height="4"/><rect x="6" y="36" width="28" height="2"/></svg>`
-};
-
+/* =========================================================================
+   BLOQUE — la planilla: una fila por levantamiento, una columna por semana.
+   Cada celda muestra la serie más pesada y, si ya se hizo, el resultado.
+   ========================================================================= */
 function renderInicio() {
   renderTopbarTag();
-  const el = document.getElementById("screen-inicio");
+  const el = $("screen-inicio");
   const block = currentBlock();
   const week = currentWeek();
-  const blockPrefix = block.legacyLabel ? "" : `Bloque ${block.number} · `;
+  const wi = state.weekIndex;
+  const sigue = CONFIG.dayOrder.find(k => !isLiftDoneInWeek(k, wi)) || null;
+  const draft = state.draft;
 
-  const dotsHtml = block.weeks.map((w, i) => `
-    <div class="dot ${i === state.weekIndex ? "current" : ""} ${isWeekCoreDone(i) ? "done" : ""} ${w.deload ? "deload" : ""}"></div>
-  `).join("");
+  const headHtml = block.weeks.map((w, i) => `
+    <th scope="col" class="${i === wi ? "cur" : ""}">
+      <button type="button" data-week="${i}" aria-pressed="${i === wi}" aria-label="Semana ${w.n}, ${w.label}">S${w.n}<small>${w.deload ? "deload" : w.label}</small></button>
+    </th>`).join("");
 
-  const liftsHtml = CONFIG.dayOrder.map(liftKey => {
+  const rowsHtml = CONFIG.dayOrder.map(liftKey => {
     const lift = block.lifts[liftKey];
-    const done = isLiftDoneInWeek(liftKey, state.weekIndex);
-    return `
-      <button class="lift-tile ${done ? "done" : ""}" data-lift="${liftKey}">
-        ${done ? '<span class="lift-tile-check">✓</span>' : ""}
-        <span class="lift-tile-icon">${LIFT_ICONS[liftKey]}</span>
-        <span class="lift-tile-name">${lift.label}</span>
-        <span class="lift-tile-meta">${lift.optional ? "Opcional · " : ""}${lift.tm} kg</span>
-      </button>
-    `;
+    const cells = block.weeks.map((w, i) => {
+      const sets = buildSets(block, liftKey, i);
+      const top = sets[sets.length - 1];
+      const rec = recordFor(liftKey, i, block.id);
+      const enCurso = draft && draft.blockId === block.id && draft.liftKey === liftKey && draft.weekIndex === i && draft.sets.some(s => s.done);
+      const esSigue = !rec && i === wi && liftKey === sigue;
+      let res = "<em>&nbsp;</em>", estado = "sin hacer";
+      if (rec) {
+        const a = rec.sets.find(s => s.isAmrap);
+        if (a && a.actualReps != null) { res = `<em>× ${a.actualReps}</em>`; estado = `hecho, ${a.actualReps} reps`; }
+        else { res = `<em><i class="ck"></i></em>`; estado = "hecho"; }
+      } else if (enCurso) { res = `<em class="pend">en curso</em>`; estado = "en curso"; }
+      else if (esSigue) { res = `<em class="pend">sigue</em>`; estado = "es la que sigue"; }
+      const cls = [i === wi ? "cur" : "", w.deload ? "dl" : "", esSigue ? "next" : ""].join(" ").trim();
+      return `<td class="${cls}"><button type="button" data-lift="${liftKey}" data-cell-week="${i}" aria-label="${lift.label}, semana ${w.n}: ${top.weight} kg, ${estado}">${top.weight}${res}</button></td>`;
+    }).join("");
+    return `<tr><th scope="row">${lift.label}</th>${cells}</tr>`;
   }).join("");
 
+  const e1Html = CONFIG.dayOrder.map(k => {
+    const serie = e1rmSerie(k);
+    const nombre = block.lifts[k].label;
+    if (!serie.length) return `<li>${nombre}<span class="flat">sin AMRAP</span><span></span></li>`;
+    const ult = serie[serie.length - 1].v;
+    let delta = `<span class="flat">primera</span>`;
+    if (serie.length > 1) {
+      const d = Math.round((ult - serie[serie.length - 2].v) * 10) / 10;
+      delta = d > 0 ? `<span class="up">+${d.toFixed(1)}</span>`
+            : d < 0 ? `<span class="down">−${Math.abs(d).toFixed(1)}</span>`
+            : `<span class="flat">0.0</span>`;
+    }
+    return `<li>${nombre}<span>${fmt1(ult)}</span>${delta}</li>`;
+  }).join("");
+
+  const kgSemana = CONFIG.dayOrder.reduce((acc, k) => { const r = recordFor(k, wi, block.id); return acc + (r ? tonelaje(r) : 0); }, 0);
+  const faltan = CONFIG.dayOrder.filter(k => !isLiftDoneInWeek(k, wi)).map(k => block.lifts[k].label);
+  const tonTxt = `${(kgSemana / 1000).toFixed(2)} t` + (faltan.length ? ` · falta ${faltan.join(", ")}` : " · semana completa");
+
   el.innerHTML = `
-    ${week.deload ? `<div class="deload-banner">SEMANA DE DELOAD — bajá la intensidad</div>` : ""}
-    <div class="week-nav">
-      <button id="btn-week-prev" ${state.weekIndex === 0 ? "disabled" : ""}>‹</button>
-      <div class="week-nav-label">
-        <div class="week-nav-n">${blockPrefix}Semana ${week.n} de ${weekTotalLabel(block)}</div>
-        <div class="week-nav-scheme">${week.label}</div>
-      </div>
-      <button id="btn-week-next" ${state.weekIndex === block.weeks.length - 1 ? "disabled" : ""}>›</button>
+    <div>
+      <h1 class="title">${blockTitle(block)}</h1>
+      <p class="sub">Semana ${week.n} de ${weekTotalLabel(block)} · ${week.label}${week.deload ? ` · <span class="deload">bajá la intensidad</span>` : ""}</p>
     </div>
-    <div class="progress-dots">${dotsHtml}</div>
+    <table class="grid">
+      <colgroup><col class="c0">${block.weeks.map(() => "<col>").join("")}</colgroup>
+      <thead><tr><th scope="col"><span class="sr">Levantamiento</span></th>${headHtml}</tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+    <p class="caption">Tocá una celda para abrir esa sesión, o una semana para marcarla como la actual.</p>
 
-    <div class="section-title">Elegí el día</div>
-    <div class="lift-grid">${liftsHtml}</div>
+    <h2 class="h">e1RM estimado <small>kg · cambio contra el AMRAP anterior</small></h2>
+    <ul class="kv">${e1Html}</ul>
 
-    ${hasCierreDataAnyLift() ? `<button class="btn btn-ghost" id="btn-cierre" style="margin-top:12px;">Ver cierre de ciclo</button>` : ""}
-    <button class="btn btn-ghost" id="btn-editar-tm" style="margin-top:12px;">Editar TM</button>
-    <button class="btn btn-ghost" id="btn-nuevo-bloque" style="margin-top:12px;">Nuevo bloque</button>
-    ${ioButtonsHtml()}
-    <p class="io-caption">El historial se guarda solo en este navegador y este teléfono. Si cambiás de celular o de navegador, exportá antes para no perderlo.</p>
+    <h2 class="h">Tonelaje semana ${week.n} <small>${tonTxt}</small></h2>
+
+    <ul class="links">
+      ${hasCierreDataAnyLift() ? `<li><button type="button" id="btn-cierre">Cierre de ciclo <span>TM sugeridos</span></button></li>` : ""}
+      <li><button type="button" id="btn-editar-tm">Editar TM <span>${CONFIG.dayOrder.map(k => block.lifts[k].tm).join(" · ")} kg</span></button></li>
+      <li><button type="button" id="btn-nuevo-bloque">Nuevo bloque <span>Bloque ${block.number + 1}</span></button></li>
+      <li><button type="button" id="btn-export">Exportar respaldo <span>${state.history.length} sesiones</span></button></li>
+      <li><button type="button" id="btn-import">Importar respaldo <span>archivo JSON</span></button></li>
+    </ul>
+    <input type="file" id="input-import" accept="application/json" class="hidden">
+    <p class="caption">El historial se guarda solo en este navegador y este teléfono. Si cambiás de celular o de navegador, exportá antes para no perderlo.</p>
   `;
 
-  el.querySelectorAll("[data-lift]").forEach(btn => {
+  el.querySelectorAll("[data-week]").forEach(btn => {
+    btn.onclick = () => { state.weekIndex = Number(btn.dataset.week); saveState(); renderInicio(); };
+  });
+  el.querySelectorAll("[data-cell-week]").forEach(btn => {
     btn.onclick = () => {
-      const liftKey = btn.dataset.lift;
-      ensureDraft(liftKey, state.weekIndex);
+      state.weekIndex = Number(btn.dataset.cellWeek);
+      ensureDraft(btn.dataset.lift, state.weekIndex);
+      saveState();
       renderSesion();
       showScreen("sesion");
     };
   });
-  const prevBtn = document.getElementById("btn-week-prev");
-  const nextBtn = document.getElementById("btn-week-next");
-  if (prevBtn) prevBtn.onclick = () => { state.weekIndex = Math.max(0, state.weekIndex - 1); saveState(); renderInicio(); };
-  if (nextBtn) nextBtn.onclick = () => { state.weekIndex = Math.min(block.weeks.length - 1, state.weekIndex + 1); saveState(); renderInicio(); };
-  const cierreBtn = document.getElementById("btn-cierre");
+  const cierreBtn = $("btn-cierre");
   if (cierreBtn) cierreBtn.onclick = () => { renderCierre(); showScreen("cierre"); };
-  document.getElementById("btn-editar-tm").onclick = () => { renderEditarTm(); showScreen("bloque"); };
-  document.getElementById("btn-nuevo-bloque").onclick = () => { renderNuevoBloque(); showScreen("bloque"); };
-  wireIoButtons();
+  $("btn-editar-tm").onclick = () => { renderEditarTm(); showScreen("bloque"); };
+  $("btn-nuevo-bloque").onclick = () => { renderNuevoBloque(); showScreen("bloque"); };
+  $("btn-export").onclick = exportHistorial;
+  $("btn-import").onclick = () => $("input-import").click();
+  $("input-import").onchange = importHistorial;
 }
+
+/* =========================================================================
+   SESIÓN — la serie activa en grande, la tabla de series debajo y la
+   asistencia con registro. renderSesion() arma la pantalla una vez;
+   renderSesionLive() redibuja solo lo que cambia al marcar series o
+   arrancar/terminar el descanso, sin tocar la nota ni la asistencia.
+   ========================================================================= */
+let assistOpen = false;
+
+function repsLabel(s) { return s.isAmrap ? `${s.reps} o más` : `${s.reps}`; }
 
 function renderSesion() {
   renderTopbarTag();
-  const el = document.getElementById("screen-sesion");
+  const el = $("screen-sesion");
   const draft = state.draft;
   const block = getBlock(draft.blockId) || currentBlock();
   const liftKey = draft.liftKey;
-  const weekIndex = draft.weekIndex;
   const lift = block.lifts[liftKey];
-  const week = block.weeks[weekIndex];
-  const sets = buildSets(block, liftKey, weekIndex);
+  const items = CONFIG.assistance[liftKey] || [];
+  if (!Array.isArray(draft.assist) || draft.assist.length !== items.length) draft.assist = nuevoAssistDraft(liftKey);
 
-  const setsHtml = sets.map((s, i) => {
-    const d = draft.sets[i];
-    const discos = formatDiscos(s.weight);
+  const assistHtml = items.map((a, i) => {
+    const d = draft.assist[i];
+    const ultimo = ultimoKgAsistencia(liftKey, a.name);
     return `
-      <div class="set-card ${d.done ? "done" : ""}" data-set="${i}">
-        <div class="set-label">Serie ${s.setNumber}${s.isAmrap ? " · AMRAP" : ""}</div>
-        <div class="set-weight">${s.weight}<span class="unit">kg</span></div>
-        <div class="set-reps">${s.isAmrap ? `${s.reps}+ reps (mínimo)` : `${s.reps} reps`}</div>
-        <div class="set-plates">
-          <span class="lbl">Discos por lado</span>
-          <span class="val ${discos.error ? "error" : ""}">${discos.text}</span>
+      <li class="assist-item">
+        <label class="a-head">
+          <input type="checkbox" id="assist-done-${i}" data-assist-done="${i}" ${d.done ? "checked" : ""}>
+          <span class="a-name">${a.name}</span>
+          <span class="a-sets">${a.sets} × ${a.reps}</span>
+        </label>
+        <div class="a-notes">${a.notes}</div>
+        <div class="a-row">
+          <label for="assist-kg-${i}">Kg
+            <input type="text" inputmode="decimal" id="assist-kg-${i}" data-assist-kg="${i}" value="${d.kg ?? ""}" placeholder="${ultimo != null ? "última: " + ultimo : "opcional"}">
+          </label>
+          <button type="button" class="chip-btn" data-assist-timer="${i}">Descanso ${CONFIG.restTimer.assistance} s</button>
         </div>
-        ${s.isAmrap ? `
-        <div class="amrap-inputs">
-          <label>Reps hechas
-            <input type="number" inputmode="numeric" min="0" data-field="actualReps" data-set="${i}" value="${d.actualReps ?? ""}">
-          </label>
-          <label>RPE
-            <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" data-field="rpe" data-set="${i}" value="${d.rpe ?? ""}">
-          </label>
-        </div>` : ""}
-        <button class="check-btn ${d.done ? "checked" : ""}" data-toggle="${i}" style="margin-top:12px;">
-          ${d.done ? "✓ Serie hecha" : "Marcar serie hecha"}
-        </button>
-      </div>
-    `;
+      </li>`;
   }).join("");
 
-  const assistItems = CONFIG.assistance[liftKey] || [];
-  const assistHtml = assistItems.map((a, i) => `
-    <div class="assist-item">
-      <div class="a-head">
-        <span class="a-name">${a.name}</span>
-        <span class="a-sets">${a.sets} x ${a.reps}</span>
-      </div>
-      <div class="a-notes">${a.notes}</div>
-      <div class="a-timer">
-        <button class="timer-clock" data-assist-timer="${i}">⏱ Descanso ${CONFIG.restTimer.assistance}s</button>
-      </div>
-    </div>
-  `).join("");
-
   el.innerHTML = `
-    <button class="btn btn-ghost btn-sm" id="btn-volver" style="width:auto;">← Volver</button>
-    <div style="margin-top:14px;">
-      <h2>${lift.label}</h2>
-      <div class="muted">Semana ${week.n} · ${week.label}${week.deload ? " · DELOAD" : ""}</div>
+    <button type="button" class="back" id="btn-volver">Bloque</button>
+    <div>
+      <h1 class="title">${lift.label}</h1>
+      <p class="sub" id="sesion-sub"></p>
     </div>
-    <div style="margin-top:18px;">${setsHtml}</div>
+    <div id="sesion-top" class="stack"></div>
+    <div id="sesion-sets"></div>
+    <div id="sesion-cta"></div>
 
-    <details class="assist">
-      <summary>Asistencia del día (${assistItems.length})</summary>
-      ${assistHtml}
-    </details>
+    ${items.length ? `
+    <details class="assist" id="assist-details" ${assistOpen ? "open" : ""}>
+      <summary>Asistencia <span id="assist-count"></span></summary>
+      <ul class="assist-list">${assistHtml}</ul>
+    </details>` : ""}
 
-    <div class="section-title">Nota de la sesión</div>
-    <textarea class="note" id="nota-sesion" placeholder="Molestias, energía, sueño...">${draft.note || ""}</textarea>
+    <label class="h" for="nota-sesion">Nota de la sesión</label>
+    <textarea class="note" id="nota-sesion" placeholder="Molestias, energía, sueño…">${esc(draft.note || "")}</textarea>
 
-    <button class="btn btn-primary" id="btn-finalizar" style="margin-top:18px;">Finalizar sesión</button>
+    <button type="button" class="btn" id="btn-finalizar">Finalizar sesión</button>
   `;
 
-  document.getElementById("btn-volver").onclick = () => { showScreen("inicio"); renderInicio(); };
+  $("btn-volver").onclick = irABloque;
 
-  el.querySelectorAll("[data-toggle]").forEach(btn => {
-    btn.onclick = () => {
-      const idx = Number(btn.dataset.toggle);
-      draft.sets[idx].done = !draft.sets[idx].done;
-      if (draft.sets[idx].done) startRestTimer(CONFIG.restTimer.main);
-      saveState();
-      renderSesion();
-    };
+  const updateAssistCount = () => {
+    const n = $("assist-count");
+    if (n) n.textContent = `${draft.assist.filter(a => a.done).length} de ${items.length} hechos`;
+  };
+  updateAssistCount();
+  const details = $("assist-details");
+  if (details) details.ontoggle = () => { assistOpen = details.open; };
+
+  el.querySelectorAll("[data-assist-done]").forEach(chk => {
+    chk.onchange = () => { draft.assist[Number(chk.dataset.assistDone)].done = chk.checked; saveState(); updateAssistCount(); };
   });
-
-  el.querySelectorAll("[data-field]").forEach(inp => {
+  el.querySelectorAll("[data-assist-kg]").forEach(inp => {
     inp.oninput = () => {
-      const idx = Number(inp.dataset.set);
-      const field = inp.dataset.field;
-      if (inp.value === "") { draft.sets[idx][field] = null; saveState(); return; }
-      let val = Number(inp.value.replace(",", "."));
-      if (Number.isNaN(val)) return;
-      // RPE: acotado en vivo a 1-10 en pasos de 0.5, para no guardar valores
-      // imposibles (por ejemplo, tipear el peso por error en vez del RPE).
-      if (field === "rpe") {
-        val = Math.min(10, Math.max(1, Math.round(val * 2) / 2));
-        if (String(val) !== inp.value) inp.value = val;
-      }
-      draft.sets[idx][field] = val;
+      const val = parseNum(inp.value);
+      draft.assist[Number(inp.dataset.assistKg)].kg = (val !== null && val >= 0) ? val : null;
       saveState();
     };
   });
-
   el.querySelectorAll("[data-assist-timer]").forEach(btn => {
-    btn.onclick = () => startRestTimer(CONFIG.restTimer.assistance);
+    btn.onclick = () => { startRestTimer(CONFIG.restTimer.assistance); window.scrollTo(0, 0); };
   });
 
-  document.getElementById("nota-sesion").oninput = (e) => { draft.note = e.target.value; saveState(); };
+  $("nota-sesion").oninput = (e) => { draft.note = e.target.value; saveState(); };
+  $("btn-finalizar").onclick = finalizarSesion;
 
-  document.getElementById("btn-finalizar").onclick = finalizarSesion;
+  renderSesionLive();
+}
+
+function renderSesionLive() {
+  const draft = state.draft;
+  if (!draft || !$("sesion-top")) return;
+  const block = getBlock(draft.blockId) || currentBlock();
+  const liftKey = draft.liftKey;
+  const week = block.weeks[draft.weekIndex];
+  const sets = buildSets(block, liftKey, draft.weekIndex);
+  const activeIdx = draft.sets.findIndex(s => !s.done);
+  const s = activeIdx >= 0 ? sets[activeIdx] : null;
+  const d = activeIdx >= 0 ? draft.sets[activeIdx] : null;
+  const resting = restEndAt !== null;
+  const discos = s ? formatDiscos(s.weight) : null;
+  const discosTxt = discos ? (discos.porLado ? `${discos.text} por lado` : discos.text) : "";
+  const meta = (s && s.isAmrap) ? repsParaRecord(liftKey, s.weight, s.reps) : null;
+
+  $("sesion-sub").innerHTML = `Semana ${week.n} · ${week.label}${week.deload ? ` · <span class="deload">Deload</span>` : ""} · ${s ? `serie ${s.setNumber} de ${sets.length}` : "series completas"}`;
+
+  let topHtml;
+  if (resting) {
+    topHtml = `
+      <div class="rest" role="timer" aria-label="Descanso">
+        <div class="rest-lbl">Descanso</div>
+        <div class="rest-time" data-rest-time>${restText()}</div>
+        <div class="rest-next">${s ? `Sigue: ${s.weight} kg × ${repsLabel(s)}` : "Sigue: asistencia"}</div>
+        ${s ? `<div class="rest-sub">${discosTxt}${meta ? ` · ${meta.reps} reps es récord` : ""}</div>` : ""}
+        <div class="rest-actions">
+          <button type="button" id="rest-more">+30 s</button>
+          <button type="button" id="rest-skip">Saltar</button>
+        </div>
+      </div>`;
+  } else if (s) {
+    topHtml = `
+      <div class="now">
+        <div class="now-big"><strong>${s.weight}</strong><span>kg × ${repsLabel(s)}</span></div>
+        <p class="now-plates ${discos.error ? "error" : ""}">${discosTxt}</p>
+      </div>
+      ${meta ? `<p class="goal"><b>${meta.reps} reps</b> es récord de e1RM: ${fmt1(meta.e1rm)} kg</p>` : ""}
+      ${s.isAmrap ? `
+      <div class="stepper">
+        <span id="lbl-reps">Reps hechas</span>
+        <div class="stepper-ctl" role="group" aria-labelledby="lbl-reps">
+          <button type="button" id="reps-menos" aria-label="Una rep menos">−</button>
+          <output id="reps-valor" aria-live="polite">${d.actualReps ?? "–"}</output>
+          <button type="button" id="reps-mas" aria-label="Una rep más">+</button>
+        </div>
+      </div>
+      <div class="rpe">
+        <label for="rpe-input">RPE<small>opcional, de 1 a 10</small></label>
+        <input type="text" inputmode="decimal" id="rpe-input" value="${d.rpe ?? ""}">
+      </div>
+      <p class="field-error hidden" id="amrap-error" role="alert">Anotá cuántas reps hiciste antes de marcar la serie.</p>` : ""}`;
+  } else {
+    topHtml = `
+      <div class="now">
+        <p class="now-done">Series principales completas</p>
+        <p class="now-plates">Seguí con la asistencia o finalizá la sesión.</p>
+      </div>`;
+  }
+  $("sesion-top").innerHTML = topHtml;
+
+  const rowsHtml = sets.map((x, i) => {
+    const dx = draft.sets[i];
+    const dsc = formatDiscos(x.weight);
+    const repsTxt = x.isAmrap ? (dx.done && dx.actualReps != null ? dx.actualReps : `${x.reps}+`) : x.reps;
+    return `
+      <tr class="${dx.done ? "ok" : ""} ${i === activeIdx ? "cur" : ""}">
+        <td>${x.setNumber}</td><td>${x.weight}</td><td>× ${repsTxt}</td><td>${dsc.text}</td>
+        <td>${dx.done ? `<button type="button" class="undo" data-undo="${i}" aria-label="Desmarcar la serie ${x.setNumber}"><i class="ck"></i></button>` : ""}</td>
+      </tr>`;
+  }).join("");
+  $("sesion-sets").innerHTML = `
+    <table class="sets">
+      <thead><tr><th scope="col">Serie</th><th scope="col">Kg</th><th scope="col">Reps</th><th scope="col">Por lado</th><th scope="col"><span class="sr">Estado</span></th></tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>`;
+
+  $("sesion-cta").innerHTML = (!resting && s) ? `<button type="button" class="btn btn-primary" id="btn-serie">Serie hecha</button>` : "";
+  $("btn-finalizar").classList.toggle("btn-primary", !s && !resting);
+
+  // --- eventos de la parte viva ---
+  if (resting) {
+    $("rest-more").onclick = () => addRest(30);
+    $("rest-skip").onclick = stopRestTimer;
+  }
+  if (!resting && s && s.isAmrap) {
+    const paso = (delta) => {
+      d.actualReps = d.actualReps == null ? s.reps : Math.max(0, d.actualReps + delta);
+      saveState();
+      renderSesionLive();
+    };
+    $("reps-menos").onclick = () => paso(-1);
+    $("reps-mas").onclick = () => paso(1);
+    const rpe = $("rpe-input");
+    rpe.oninput = () => {
+      const val = parseNum(rpe.value);
+      // RPE acotado en vivo a 1-10 en pasos de 0.5, para no guardar valores
+      // imposibles (por ejemplo, tipear el peso por error en vez del RPE).
+      if (val === null) { d.rpe = null; saveState(); return; }
+      if (/[.,]$/.test(rpe.value)) return; // todavía está escribiendo el decimal
+      const ok = Math.min(10, Math.max(1, Math.round(val * 2) / 2));
+      if (String(ok) !== rpe.value.replace(",", ".")) rpe.value = ok;
+      d.rpe = ok;
+      saveState();
+    };
+  }
+  const serieBtn = $("btn-serie");
+  if (serieBtn) serieBtn.onclick = () => {
+    if (s.isAmrap && d.actualReps == null) {
+      $("amrap-error").classList.remove("hidden");
+      return;
+    }
+    d.done = true;
+    saveState();
+    startRestTimer(CONFIG.restTimer.main);
+    window.scrollTo(0, 0);
+  };
+  $("sesion-sets").querySelectorAll("[data-undo]").forEach(btn => {
+    btn.onclick = () => { draft.sets[Number(btn.dataset.undo)].done = false; saveState(); renderSesionLive(); };
+  });
 }
 
 function finalizarSesion() {
@@ -828,6 +1184,10 @@ function finalizarSesion() {
   const weekIndex = draft.weekIndex;
   const week = block.weeks[weekIndex];
   const sets = buildSets(block, liftKey, weekIndex);
+  const items = CONFIG.assistance[liftKey] || [];
+
+  const sinMarcar = draft.sets.filter(s => !s.done).length;
+  if (sinMarcar && !confirm(`${sinMarcar === 1 ? "Queda 1 serie" : `Quedan ${sinMarcar} series`} sin marcar. ¿Finalizar igual?`)) return;
 
   const record = {
     id: Date.now() + "_" + liftKey,
@@ -847,15 +1207,142 @@ function finalizarSesion() {
       done: draft.sets[i].done,
       actualReps: draft.sets[i].actualReps,
       rpe: draft.sets[i].rpe
+    })),
+    assist: items.map((a, i) => ({
+      name: a.name,
+      done: !!(draft.assist && draft.assist[i] && draft.assist[i].done),
+      kg: (draft.assist && draft.assist[i]) ? draft.assist[i].kg : null
     }))
   };
 
   state.history.unshift(record);
   state.draft = null;
-  stopRestTimer();
+  assistOpen = false;
   saveState();
-  showScreen("inicio");
-  renderInicio();
+  stopRestTimer();
+  irABloque();
+}
+
+/* =========================================================================
+   ANÁLISIS — e1RM por semana, tonelaje y reps del AMRAP del bloque actual.
+   Una sola escala (kg) para las tres series; etiqueta directa en el último
+   punto de cada una y tabla debajo, así nada depende solo del color.
+   ========================================================================= */
+function e1rmChartSvg(series, weeks) {
+  const todos = series.flatMap(s => s.pts.map(p => p.v));
+  const W = 320, L = 30, R = 206, T = 12, B = 150;
+  let lo = Math.floor((Math.min(...todos) - 4) / 10) * 10;
+  let hi = Math.ceil((Math.max(...todos) + 4) / 10) * 10;
+  if (hi - lo < 20) hi = lo + 20;
+  let step = 10;
+  while ((hi - lo) / step > 4) step *= 2;
+  const y = v => B - (v - lo) / (hi - lo) * (B - T);
+  const x = i => weeks.length === 1 ? (L + R) / 2 : L + (R - L) * i / (weeks.length - 1);
+  const n = v => v.toFixed(1);
+
+  let svg = `<svg viewBox="0 0 ${W} 172" role="img" aria-label="e1RM estimado por semana, en kilos. Los valores exactos están en el detalle al tocar cada punto.">`;
+  for (let g = lo; g <= hi; g += step) {
+    svg += `<line class="g" x1="${L - 4}" x2="${R + 4}" y1="${n(y(g))}" y2="${n(y(g))}"/><text class="t" x="0" y="${n(y(g) + 3.5)}">${g}</text>`;
+  }
+  weeks.forEach((wk, i) => { svg += `<text class="t" x="${n(x(i))}" y="168" text-anchor="middle">S${wk.w.n}</text>`; });
+
+  series.forEach(s => {
+    if (!s.pts.length) return;
+    svg += `<g class="${s.cls}">`;
+    if (s.pts.length > 1) svg += `<polyline class="ln" points="${s.pts.map(p => `${n(x(p.xi))},${n(y(p.v))}`).join(" ")}"/>`;
+    s.pts.forEach(p => {
+      const tip = `${s.label} · semana ${p.w.n}: e1RM ${fmt1(p.v)} kg (${p.set.weight} kg × ${p.set.actualReps})`;
+      svg += `<circle class="pt" cx="${n(x(p.xi))}" cy="${n(y(p.v))}" r="4.5"/>`
+           + `<circle class="hit" cx="${n(x(p.xi))}" cy="${n(y(p.v))}" r="14" tabindex="0" role="button" aria-label="${esc(tip)}" data-tip="${esc(tip)}"/>`;
+    });
+    svg += `</g>`;
+  });
+
+  // Etiquetas directas, separadas al menos 13 unidades para que no se pisen.
+  const labels = series.filter(s => s.pts.length)
+    .map(s => { const p = s.pts[s.pts.length - 1]; return { s, p, ly: y(p.v) }; })
+    .sort((a, b) => a.ly - b.ly);
+  for (let i = 1; i < labels.length; i++) {
+    if (labels[i].ly - labels[i - 1].ly < 13) labels[i].ly = labels[i - 1].ly + 13;
+  }
+  labels.forEach(l => { svg += `<text class="lab" x="${n(x(l.p.xi) + 10)}" y="${n(l.ly + 3.5)}">${l.s.label} ${fmt1(l.p.v)}</text>`; });
+  return svg + `</svg>`;
+}
+
+function renderAnalisis() {
+  renderTopbarTag();
+  const el = $("screen-analisis");
+  const block = currentBlock();
+  const amrapWeeks = block.weeks.map((w, i) => ({ w, i })).filter(x => x.w.amrap);
+
+  const series = CONFIG.dayOrder.map((k, si) => ({
+    key: k, label: block.lifts[k].label, cls: "s" + (si + 1),
+    pts: amrapWeeks.map((x, xi) => {
+      const rec = recordFor(k, x.i, block.id);
+      const set = rec ? amrapDe(rec) : null;
+      return set ? { xi, v: e1rm(set.weight, set.actualReps), set, w: x.w } : null;
+    }).filter(Boolean)
+  }));
+  const hayPuntos = series.some(s => s.pts.length);
+
+  const chartHtml = hayPuntos ? `
+    <div class="legend">${series.map(s => `<span><i class="${s.cls}"></i>${s.label}</span>`).join("")}</div>
+    <div class="chart" id="e1rm-chart">${e1rmChartSvg(series, amrapWeeks)}</div>
+    <p class="readout" id="chart-readout" aria-live="polite">Tocá un punto para ver el peso y las reps de ese día.</p>`
+    : `<p class="empty">Todavía no hay AMRAP anotados en este bloque. Cuando termines una sesión con las reps cargadas, tu e1RM aparece acá.</p>`;
+
+  const kgPorSemana = block.weeks.map((w, i) => CONFIG.dayOrder.reduce((acc, k) => {
+    const r = recordFor(k, i, block.id);
+    return acc + (r ? tonelaje(r) : 0);
+  }, 0));
+  const maxKg = Math.max(...kgPorSemana, 1);
+  const tonHtml = block.weeks.map((w, i) => {
+    const kg = kgPorSemana[i];
+    const enCurso = kg > 0 && i === state.weekIndex && !isWeekCoreDone(i);
+    const cls = kg === 0 ? "b zero" : enCurso ? "b part" : "b";
+    return `<span class="lbl">S${w.n}</span><div><div class="${cls}" style="width:${kg === 0 ? 100 : Math.max(2, kg / maxKg * 100).toFixed(1)}%"></div></div>`
+         + `<span>${kg === 0 ? `<em>sin sesiones</em>` : `${(kg / 1000).toFixed(2)} t${enCurso ? ` <em>en curso</em>` : ""}`}</span>`;
+  }).join("");
+
+  const repsHtml = CONFIG.dayOrder.map(k => {
+    const celdas = amrapWeeks.map(x => {
+      const rec = recordFor(k, x.i, block.id);
+      const a = rec ? rec.sets.find(s => s.isAmrap) : null;
+      if (!a || a.actualReps == null) return `<td class="na">–</td>`;
+      const extra = a.actualReps - a.reps;
+      return `<td>${a.actualReps}<small class="${extra < 0 ? "down" : ""}">${extra < 0 ? "−" + Math.abs(extra) : "+" + extra}</small></td>`;
+    }).join("");
+    return `<tr><th scope="row">${block.lifts[k].label}</th>${celdas}</tr>`;
+  }).join("");
+
+  el.innerHTML = `
+    <div>
+      <h1 class="title">Análisis</h1>
+      <p class="sub">${blockTitle(block)}</p>
+    </div>
+
+    <h2 class="h">e1RM por semana <small>kg</small></h2>
+    ${chartHtml}
+
+    <h2 class="h">Tonelaje por semana <small>series principales</small></h2>
+    <div class="ton">${tonHtml}</div>
+
+    <h2 class="h">Reps en el AMRAP <small>y cuántas sobre el mínimo</small></h2>
+    <table class="reps">
+      <thead><tr><th scope="col"><span class="sr">Levantamiento</span></th>${amrapWeeks.map(x => `<th scope="col">S${x.w.n}</th>`).join("")}</tr></thead>
+      <tbody>${repsHtml}</tbody>
+    </table>
+  `;
+
+  const readout = $("chart-readout");
+  if (readout) {
+    el.querySelectorAll(".hit").forEach(h => {
+      const show = () => { readout.textContent = h.dataset.tip; };
+      h.addEventListener("click", show);
+      h.addEventListener("pointerenter", show);
+      h.addEventListener("focus", show);
+    });
+  }
 }
 
 /* =========================================================================
@@ -864,40 +1351,50 @@ function finalizarSesion() {
 let historialTab = "squat";
 
 function renderHistorial() {
-  const el = document.getElementById("screen-historial");
+  renderTopbarTag();
+  const el = $("screen-historial");
   const tabsHtml = CONFIG.dayOrder.map(k => `
-    <button class="tab ${k === historialTab ? "active" : ""}" data-tab="${k}">${CONFIG.lifts[k].label}</button>
+    <button type="button" class="tab ${k === historialTab ? "active" : ""}" data-tab="${k}" aria-pressed="${k === historialTab}">${CONFIG.lifts[k].label}</button>
   `).join("");
 
   const sessions = state.history.filter(r => r.liftKey === historialTab);
+  const mejor = mejorE1rm(historialTab);
   const listHtml = sessions.length ? sessions.map(r => {
     const fecha = new Date(r.timestamp).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" });
     const recBlock = getBlock(r.blockId);
     const blockPrefix = recBlock && !recBlock.legacyLabel ? `Bloque ${recBlock.number} · ` : "";
     const setsText = r.sets.map(s => {
       if (s.isAmrap) {
-        const reps = s.actualReps != null ? s.actualReps : "?";
-        const rpe = s.rpe != null ? ` RPE ${s.rpe}` : "";
-        return `${s.weight}kg x <span class="hist-amrap">${reps}${rpe}</span>`;
+        const reps = s.actualReps != null ? esc(s.actualReps) : "?";
+        const rpe = s.rpe != null ? ` RPE ${esc(s.rpe)}` : "";
+        return `${esc(s.weight)} × <span class="hist-amrap">${reps}${rpe}</span>`;
       }
-      return `${s.weight}kg x ${s.reps}`;
+      return `${esc(s.weight)} × ${esc(s.reps)}`;
     }).join(" · ");
+    const a = amrapDe(r);
+    const meta = [];
+    if (a) {
+      const v = e1rm(a.weight, a.actualReps);
+      meta.push(`e1RM ${fmt1(v)} kg${mejor !== null && Math.abs(v - mejor) < 1e-9 ? ` · <b>mejor marca</b>` : ""}`);
+    }
+    if (Array.isArray(r.assist) && r.assist.length) meta.push(`Asistencia ${r.assist.filter(x => x.done).length} de ${r.assist.length}`);
     return `
       <div class="hist-row">
         <div class="hist-top">
           <span>${fecha}</span>
-          <span class="hist-week">${blockPrefix}Semana ${r.weekN} · ${r.weekLabel}${r.deload ? " · DELOAD" : ""}</span>
+          <span class="hist-week">${blockPrefix}Semana ${esc(r.weekN)} · ${esc(r.weekLabel)}</span>
         </div>
-        <div class="hist-sets">${setsText}</div>
-        ${r.note ? `<div class="hist-note">"${r.note}"</div>` : ""}
+        <div class="hist-sets">${setsText} kg</div>
+        ${meta.length ? `<div class="hist-meta">${meta.join(" · ")}</div>` : ""}
+        ${r.note ? `<div class="hist-note">${esc(r.note)}</div>` : ""}
       </div>
     `;
-  }).join("") : `<div class="empty">Todavía no hay sesiones registradas de ${CONFIG.lifts[historialTab].label}.</div>`;
+  }).join("") : `<p class="empty">Todavía no hay sesiones de ${CONFIG.lifts[historialTab].label}. Abrí una desde la planilla del bloque y aparece acá al finalizarla.</p>`;
 
   el.innerHTML = `
-    <div class="section-title">Historial</div>
+    <h1 class="title">Historial</h1>
     <div class="tabbar">${tabsHtml}</div>
-    <div class="card">${listHtml}</div>
+    <div>${listHtml}</div>
   `;
 
   el.querySelectorAll("[data-tab]").forEach(btn => {
@@ -925,8 +1422,13 @@ function hasCierreDataAnyLift() {
   return CONFIG.dayOrder.some(k => findCierreAmrap(k, block) !== null);
 }
 
+// Siempre devuelve una regla. 0 reps (no se llegó al mínimo prescrito) se lee
+// como el peor caso, "TM al límite"; un valor con decimales se trunca. Sin
+// esto, un AMRAP de 0 o 3.5 no matcheaba ninguna regla y rompía Cierre de
+// ciclo y Nuevo bloque con un TypeError.
 function reglaPara(reps) {
-  return CONFIG.cierreDeCiclo.reglas.find(r => reps >= r.repsMin && reps <= r.repsMax);
+  const n = Math.max(1, Math.floor(Number(reps) || 0));
+  return CONFIG.cierreDeCiclo.reglas.find(r => n >= r.repsMin && n <= r.repsMax);
 }
 
 // Sugerencia por tabla de incrementos (texto corto, sin unidad).
@@ -941,7 +1443,7 @@ function sugerenciaTabla(lift, reps) {
 }
 
 function renderCierre() {
-  const el = document.getElementById("screen-cierre");
+  const el = $("screen-cierre");
   const block = currentBlock();
   const filas = CONFIG.dayOrder.map(liftKey => {
     const lift = block.lifts[liftKey];
@@ -950,7 +1452,7 @@ function renderCierre() {
       return `
         <div class="cierre-row">
           <div class="cierre-row-top"><span class="cierre-name">${lift.label}</span></div>
-          <div class="muted">Sin AMRAP registrado en la semana fuerte de este bloque.</div>
+          <div class="muted">Sin AMRAP anotado en la semana fuerte de este bloque.</div>
         </div>`;
     }
     const { set } = data;
@@ -960,8 +1462,8 @@ function renderCierre() {
     const tabla = sugerenciaTabla(lift, reps);
 
     // e1RM literal: (peso × reps × 0.0333) + peso
-    const e1rm = (weight * reps * 0.0333) + weight;
-    const tmSugeridoE1rm = redondear(e1rm * 0.9);
+    const valor = e1rm(weight, reps);
+    const tmSugeridoE1rm = redondear(valor * 0.9);
 
     return `
       <div class="cierre-row">
@@ -969,23 +1471,25 @@ function renderCierre() {
           <span class="cierre-name">${lift.label}</span>
           <span class="cierre-badge">${regla.lectura}</span>
         </div>
-        <div class="muted">TM actual ${lift.tm} kg · AMRAP ${weight}kg x ${reps}${set.rpe != null ? ` (RPE ${set.rpe})` : ""}</div>
+        <div class="muted">TM actual ${lift.tm} kg · AMRAP ${esc(weight)} kg × ${esc(reps)}${set.rpe != null ? ` (RPE ${esc(set.rpe)})` : ""}</div>
         <div class="cierre-sugerencias">
-          ${tabla ? `Tabla → <b>${tabla} kg</b> &nbsp;·&nbsp; ` : ""}e1RM → <b>${redondear(e1rm)} kg</b> (TM sugerido <b>${tmSugeridoE1rm} kg</b>)
+          ${tabla ? `Tabla: <b>${tabla} kg</b> · ` : ""}e1RM: <b>${redondear(valor)} kg</b> (TM sugerido <b>${tmSugeridoE1rm} kg</b>)
         </div>
       </div>
     `;
   }).join("");
 
   el.innerHTML = `
-    <button class="btn btn-ghost btn-sm" id="btn-volver-cierre" style="width:auto;">← Volver</button>
-    <div class="section-title" style="margin-top:14px;">Cierre de ciclo</div>
-    <p class="muted">Basado en el AMRAP de la semana fuerte de este bloque.</p>
-    ${filas}
-    <button class="btn btn-primary" id="btn-ir-nuevo-bloque" style="margin-top:18px;">→ Armar bloque nuevo</button>
+    <button type="button" class="back" id="btn-volver-cierre">Bloque</button>
+    <div>
+      <h1 class="title">Cierre de ciclo</h1>
+      <p class="sub">Según el AMRAP de la semana fuerte de este bloque.</p>
+    </div>
+    <div>${filas}</div>
+    <button type="button" class="btn btn-primary" id="btn-ir-nuevo-bloque">Armar bloque nuevo</button>
   `;
-  document.getElementById("btn-volver-cierre").onclick = () => { showScreen("inicio"); renderInicio(); };
-  document.getElementById("btn-ir-nuevo-bloque").onclick = () => { renderNuevoBloque(); showScreen("bloque"); };
+  $("btn-volver-cierre").onclick = irABloque;
+  $("btn-ir-nuevo-bloque").onclick = () => { renderNuevoBloque(); showScreen("bloque"); };
 }
 
 /* =========================================================================
@@ -993,8 +1497,20 @@ function renderCierre() {
    bloque nuevo, no toca semana/número/historial). Para cuando te
    equivocaste al crear el bloque o cambia tu 1RM a mitad de bloque.
    ========================================================================= */
+function leerTmInputs() {
+  const valores = {};
+  let valido = true;
+  document.querySelectorAll("[data-lift-tm]").forEach(inp => {
+    const val = parseNum(inp.value);
+    if (val === null || val <= 0) valido = false;
+    valores[inp.dataset.liftTm] = val;
+  });
+  $("tm-error").classList.toggle("hidden", valido);
+  return valido ? valores : null;
+}
+
 function renderEditarTm() {
-  const el = document.getElementById("screen-bloque");
+  const el = $("screen-bloque");
   const block = currentBlock();
 
   const filasHtml = CONFIG.dayOrder.map(liftKey => {
@@ -1002,35 +1518,29 @@ function renderEditarTm() {
     return `
       <label class="tm-input-row">
         <span class="tm-input-label">${lift.label}</span>
-        <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" data-lift-tm="${liftKey}" value="${lift.tm}">
+        <input type="text" inputmode="decimal" id="tm-${liftKey}" data-lift-tm="${liftKey}" value="${lift.tm}">
       </label>
     `;
   }).join("");
 
   el.innerHTML = `
-    <button class="btn btn-ghost btn-sm" id="btn-volver-bloque" style="width:auto;">← Volver</button>
-    <div class="section-title" style="margin-top:14px;">Editar TM</div>
-    <p class="muted">Corregí el Training Max del bloque actual. No crea un bloque nuevo ni toca tu semana ni tu historial.</p>
+    <button type="button" class="back" id="btn-volver-bloque">Bloque</button>
+    <div>
+      <h1 class="title">Editar TM</h1>
+      <p class="sub">Corregí el Training Max del bloque actual. No crea un bloque nuevo ni toca tu semana ni tu historial.</p>
+    </div>
     ${filasHtml}
-    <button class="btn btn-primary" id="btn-guardar-tm" style="margin-top:8px;">Guardar TM</button>
+    <p class="field-error hidden" id="tm-error" role="alert">Cada TM tiene que ser un número mayor que cero, en kilos.</p>
+    <button type="button" class="btn btn-primary" id="btn-guardar-tm">Guardar TM</button>
   `;
 
-  document.getElementById("btn-volver-bloque").onclick = () => { showScreen("inicio"); renderInicio(); };
-  document.getElementById("btn-guardar-tm").onclick = () => {
-    const inputs = document.querySelectorAll("[data-lift-tm]");
-    const nuevosTm = {};
-    let valido = true;
-    inputs.forEach(inp => {
-      const val = Number(inp.value.replace(",", "."));
-      if (!Number.isFinite(val) || val <= 0) valido = false;
-      nuevosTm[inp.dataset.liftTm] = val;
-    });
-    if (!valido) { alert("Todos los TM tienen que ser números positivos."); return; }
-
+  $("btn-volver-bloque").onclick = irABloque;
+  $("btn-guardar-tm").onclick = () => {
+    const nuevosTm = leerTmInputs();
+    if (!nuevosTm) return;
     CONFIG.dayOrder.forEach(k => { block.lifts[k].tm = nuevosTm[k]; });
     saveState();
-    showScreen("inicio");
-    renderInicio();
+    irABloque();
   };
 }
 
@@ -1040,7 +1550,7 @@ function renderEditarTm() {
    solo cambian los TM y la numeración (se reinicia: "Bloque N · Semana 1").
    ========================================================================= */
 function renderNuevoBloque() {
-  const el = document.getElementById("screen-bloque");
+  const el = $("screen-bloque");
   const block = currentBlock();
 
   const filasHtml = CONFIG.dayOrder.map(liftKey => {
@@ -1050,42 +1560,37 @@ function renderNuevoBloque() {
     let hint = "";
     if (data) {
       const { set } = data;
-      const e1rm = (set.weight * set.actualReps * 0.0333) + set.weight;
-      sugerido = redondear(e1rm * 0.9);
+      sugerido = redondear(e1rm(set.weight, set.actualReps) * 0.9);
       const tabla = sugerenciaTabla(lift, set.actualReps);
       hint = tabla ? `Sugerido: ${sugerido} kg (e1RM) · Tabla: ${tabla} kg` : `Sugerido: ${sugerido} kg (e1RM)`;
     }
     return `
       <label class="tm-input-row">
         <span class="tm-input-label">${lift.label}</span>
-        <input type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" data-lift-tm="${liftKey}" value="${sugerido}">
+        <input type="text" inputmode="decimal" id="tm-${liftKey}" data-lift-tm="${liftKey}" value="${sugerido}">
         ${hint ? `<span class="tm-input-hint">${hint}</span>` : ""}
       </label>
     `;
   }).join("");
 
   el.innerHTML = `
-    <button class="btn btn-ghost btn-sm" id="btn-volver-bloque" style="width:auto;">← Volver</button>
-    <div class="section-title" style="margin-top:14px;">Nuevo bloque</div>
-    <p class="muted">Cargá el Training Max de cada levantamiento para arrancar el Bloque ${block.number + 1}. Se precargan con la sugerencia del cierre de ciclo cuando hay datos.</p>
+    <button type="button" class="back" id="btn-volver-bloque">Bloque</button>
+    <div>
+      <h1 class="title">Nuevo bloque</h1>
+      <p class="sub">Cargá el Training Max de cada levantamiento para arrancar el Bloque ${block.number + 1}. Se precargan con la sugerencia del cierre de ciclo cuando hay datos.</p>
+    </div>
     ${filasHtml}
-    <button class="btn btn-primary" id="btn-crear-bloque" style="margin-top:8px;">Crear bloque</button>
+    <p class="field-error hidden" id="tm-error" role="alert">Cada TM tiene que ser un número mayor que cero, en kilos.</p>
+    <button type="button" class="btn btn-primary" id="btn-crear-bloque">Crear bloque</button>
   `;
 
-  document.getElementById("btn-volver-bloque").onclick = () => { showScreen("inicio"); renderInicio(); };
-  document.getElementById("btn-crear-bloque").onclick = crearBloqueNuevo;
+  $("btn-volver-bloque").onclick = irABloque;
+  $("btn-crear-bloque").onclick = crearBloqueNuevo;
 }
 
 function crearBloqueNuevo() {
-  const inputs = document.querySelectorAll("[data-lift-tm]");
-  const nuevosLifts = {};
-  let valido = true;
-  inputs.forEach(inp => {
-    const val = Number(inp.value.replace(",", "."));
-    if (!Number.isFinite(val) || val <= 0) valido = false;
-    nuevosLifts[inp.dataset.liftTm] = val;
-  });
-  if (!valido) { alert("Todos los TM tienen que ser números positivos."); return; }
+  const nuevosLifts = leerTmInputs();
+  if (!nuevosLifts) return;
 
   const prevBlock = currentBlock();
   const newBlock = {
@@ -1105,32 +1610,13 @@ function crearBloqueNuevo() {
   state.weekIndex = 0;
   state.draft = null;
   saveState();
-  showScreen("inicio");
-  renderInicio();
+  stopRestTimer();
+  irABloque();
 }
 
 /* =========================================================================
    EXPORT / IMPORT
    ========================================================================= */
-function ioButtonsHtml() {
-  return `
-    <div class="io-row">
-      <button class="btn btn-sm" id="btn-export">Exportar JSON</button>
-      <button class="btn btn-sm" id="btn-import">Importar JSON</button>
-    </div>
-    <input type="file" id="input-import" accept="application/json" class="hidden">
-  `;
-}
-
-function wireIoButtons() {
-  const exportBtn = document.getElementById("btn-export");
-  const importBtn = document.getElementById("btn-import");
-  const fileInput = document.getElementById("input-import");
-  if (exportBtn) exportBtn.onclick = exportHistorial;
-  if (importBtn) importBtn.onclick = () => fileInput.click();
-  if (fileInput) fileInput.onchange = importHistorial;
-}
-
 function exportHistorial() {
   try {
     const data = JSON.stringify(state, null, 2);
@@ -1158,16 +1644,17 @@ function importHistorial(e) {
     try {
       const parsed = JSON.parse(reader.result);
       if (!parsed || !Array.isArray(parsed.history)) throw new Error("Formato inválido");
+      if (parsed.blocks != null && !Array.isArray(parsed.blocks)) throw new Error("Formato inválido");
       if (!confirm(`Importar reemplazará el estado actual (${state.history.length} sesiones) por el del archivo (${parsed.history.length} sesiones). ¿Continuar?`)) return;
       state = Object.assign(defaultState(), parsed);
       ensureBlocks(state);
       saveState();
-      renderInicio();
-      renderHistorial();
+      stopRestTimer();
+      irABloque();
       alert("Importado correctamente.");
     } catch (err) {
       console.error(err);
-      alert("El archivo no es un backup válido de esta app.");
+      alert("El archivo no es un respaldo válido de esta app.");
     }
   };
   reader.readAsText(file);
@@ -1176,8 +1663,9 @@ function importHistorial(e) {
 /* =========================================================================
    NAV / INIT
    ========================================================================= */
-document.getElementById("nav-inicio").onclick = () => { renderInicio(); showScreen("inicio"); };
-document.getElementById("nav-historial").onclick = () => { renderHistorial(); showScreen("historial"); };
+$("nav-inicio").onclick = irABloque;
+$("nav-analisis").onclick = () => { renderAnalisis(); showScreen("analisis"); };
+$("nav-historial").onclick = () => { renderHistorial(); showScreen("historial"); };
 
 function init() {
   runSelfTests();
